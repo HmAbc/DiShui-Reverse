@@ -76,6 +76,7 @@ DWORD InsertCodeToFirstSection()
 		printf("代码区空间不足\n");
 		free(pFileBuffer);
 		free(pImageBuffer);
+		return 0;
 	}
 	//计算插入位置
 	codeBegin = (PBYTE)((DWORD)pImageBuffer + pSectionHeader->VirtualAddress + pSectionHeader->Misc.VirtualSize);
@@ -299,21 +300,24 @@ BOOL AddNewSectionAtEnd()
 {
 	LPVOID pFileBuffer = NULL;
 	LPVOID pImageBuffer = NULL;
+	LPVOID pNewImageBuffer = NULL;
 	LPVOID pNewBuffer = NULL;
 	BOOL isOk = FALSE;
 	DWORD fileSize = 0;
+	DWORD newFileSize = 0;
+	BYTE name[8] = "newSec";
 
 	ReadPEFile(FILEPATH_IN, &pFileBuffer);
 	if (!pFileBuffer)
 	{
-		printf("(MoveHeaderBehindDosHeader)exe->pFileBuffer失败\n");
+		printf("(AddNewSectionAtEnd)exe->pFileBuffer失败\n");
 		return 0;
 	}
 
-	CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
+	fileSize = CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
 	if (!pImageBuffer)
 	{
-		printf("(MoveHeaderBehindDosHeader)pFileBuffer->pImageBuffer失败\n");
+		printf("(AddNewSectionAtEnd)pFileBuffer->pImageBuffer失败\n");
 		free(pFileBuffer);
 		return 0;
 	}
@@ -321,12 +325,90 @@ BOOL AddNewSectionAtEnd()
 	isOk = MoveHeader(pFileBuffer, &pImageBuffer);
 	if (!isOk)
 	{
-		printf("(MoveHeaderBehindDosHeader)移动文件头失败\n");
+		printf("(AddNewSectionAtEnd)移动文件头失败\n");
 		free(pFileBuffer);
 		free(pImageBuffer);
 		return FALSE;
 	}
 
+	AddNewSection(pImageBuffer, &pNewImageBuffer, fileSize, 0x1000, name);
+	if (!pNewImageBuffer)
+	{
+		printf("(AddNewSectionAtEnd)添加节失败\n");
+		free(pFileBuffer);
+		free(pImageBuffer);
+		return 0;
+	}
+
+	newFileSize = CopyImageBufferToNewBuffer(pNewImageBuffer, &pNewBuffer);
+	if (!pNewBuffer)
+	{
+		printf("(AddNewSectionAtEnd)缩小文件失败\n");
+		free(pFileBuffer);
+		free(pImageBuffer);
+		free(pNewImageBuffer);
+		return 0;		
+	}
+
+	MemoryToFile(pNewBuffer, newFileSize, FILEPATH_OUT);
+	free(pFileBuffer);
+	free(pImageBuffer);
+	free(pNewImageBuffer);
+	free(pNewBuffer);
+	printf("(AddNewSectionAtEnd)添加section成功\n");
+	return TRUE;
+}
+
+BOOL ModifyLastSectionSize()
+{
+	LPVOID pFileBuffer = NULL;
+	LPVOID pImageBuffer = NULL;
+	LPVOID pNewImageBuffer = NULL;
+	LPVOID pNewBuffer = NULL;
+	BOOL isOk = FALSE;
+	DWORD fileSize = 0;
+	DWORD newFileSize = 0;
+
+	ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(ModifyLastSectionSize)exe->pFileBuffer失败\n");
+		return 0;
+	}
+
+	fileSize = CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
+	if (!pImageBuffer)
+	{
+		printf("(ModifyLastSectionSize)pFileBuffer->pImageBuffer失败\n");
+		free(pFileBuffer);
+		return 0;
+	}
+
+	ExpandLastSection(pImageBuffer, &pNewImageBuffer, fileSize, 0x1000);
+	if (!pNewImageBuffer)
+	{
+		printf("(ModifyLastSectionSize)扩大最后一个section失败\n");
+		free(pFileBuffer);
+		free(pImageBuffer);
+		return 0;
+	}
+
+	newFileSize = CopyImageBufferToNewBuffer(pNewImageBuffer, &pNewBuffer);
+	if (!pNewBuffer)
+	{
+		printf("(ModifyLastSectionSize)缩小文件失败\n");
+		free(pFileBuffer);
+		free(pImageBuffer);
+		free(pNewImageBuffer);
+		return 0;
+	}
+
+	MemoryToFile(pNewBuffer, newFileSize, FILEPATH_OUT);
+	free(pFileBuffer);
+	free(pImageBuffer);
+	free(pNewImageBuffer);
+	free(pNewBuffer);
+	printf("(ModifyLastSectionSize)扩大最后一个section成功\n");
 	return TRUE;
 }
 
@@ -341,6 +423,10 @@ int main()
 	//MoveHeaderBehindDosHeader();
 
 	//MergeSectionsToOne();
-	printf("%d\n", sizeof(IMAGE_SECTION_HEADER));
+
+	//AddNewSectionAtEnd();
+
+	ModifyLastSectionSize();
+
 	return 0;
 }

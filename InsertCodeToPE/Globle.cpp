@@ -1,6 +1,6 @@
 #include "Globle.h"
 
-DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID *pFileBuffer)
+DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
 	FILE *pFile = NULL;
 	errno_t err = 0;
@@ -42,7 +42,7 @@ DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID *pFileBuffer)
 	return fileSize;
 }
 
-DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID *pImageBuffer)
+DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -102,7 +102,7 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID *pImageBuffe
 	return pOptionHeader->SizeOfImage;
 }
 
-DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID *pNewBuffer)
+DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID* pNewBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -208,7 +208,7 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 	return 0;
 }
 
-BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID *pImageBuffer)
+BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -247,7 +247,7 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID *pImageBuffer)
 	return TRUE;
 }
 
-BOOL MergeSections(OUT LPVOID *pImageBuffer)
+BOOL MergeSections(OUT LPVOID* pImageBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -290,7 +290,7 @@ BOOL MergeSections(OUT LPVOID *pImageBuffer)
 	return TRUE;
 }
 
-BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID *pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize)
+BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -298,15 +298,89 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID *pNewImageBuffer, IN DWORD
 	PIMAGE_OPTIONAL_HEADER32 pOptionHeader = NULL;
 	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
 	DWORD index = 0;
-	DWORD newSectionAddr = NULL;
+	DWORD newFileSize = 0;
+	PIMAGE_SECTION_HEADER newSectionHeader = NULL;
+	LPVOID pNewImageBufferTemp = NULL;
 
-	pDosHeader = (PIMAGE_DOS_HEADER)pImageBuffer;
-	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pImageBuffer + pDosHeader->e_lfanew);
+	newFileSize = fileSize + addSize;
+	pNewImageBufferTemp = malloc(newFileSize);
+	if (!pNewImageBufferTemp)
+	{
+		printf("(AddNewSection)内存分配失败\n");
+		free(pImageBuffer);
+		return 0;
+	}
+
+	memset(pNewImageBufferTemp, 0, newFileSize);
+	memcpy(pNewImageBufferTemp, pImageBuffer, fileSize);
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pNewImageBufferTemp;
+	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pNewImageBufferTemp + pDosHeader->e_lfanew);
 	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER32)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 
 	index = pPEHeader->NumberOfSections;
-	newSectionAddr = pSectionHeader->VirtualAddress + index * sizeof(IMAGE_SECTION_HEADER);
+	newSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pSectionHeader + index * sizeof(IMAGE_SECTION_HEADER));
+	memcpy(newSectionHeader->Name, name, 8);
+	newSectionHeader->Misc.VirtualSize = addSize;
+	newSectionHeader->VirtualAddress = pOptionHeader->SizeOfImage;
+	newSectionHeader->SizeOfRawData = addSize;
+	newSectionHeader->PointerToRawData = pSectionHeader[index - 1].PointerToRawData + pSectionHeader[index - 1].SizeOfRawData;
+	newSectionHeader->PointerToRelocations = 0;
+	newSectionHeader->PointerToLinenumbers = 0;
+	newSectionHeader->NumberOfRelocations = 0;
+	newSectionHeader->NumberOfLinenumbers = 0;
+	newSectionHeader->Characteristics = pSectionHeader->Characteristics;
+	//在节表后添加一个全零节表，表示结束
+	memset(newSectionHeader + 1, 0, sizeof(IMAGE_SECTION_HEADER));
 
+	pPEHeader->NumberOfSections += 1;
+	pOptionHeader->SizeOfImage = newFileSize;
+
+	*pNewImageBuffer = pNewImageBufferTemp;
+	pNewImageBufferTemp = NULL;
+	return newFileSize;	
+}
+
+BOOL ExpandLastSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize)
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER32 pOptionHeader = NULL;
+	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
+	DWORD index = 0;
+	DWORD newFileSize = 0;
+	DWORD newSectionSize = 0;
+	LPVOID pNewImageBufferTemp = NULL;
+
+	newFileSize = fileSize + addSize;
+	pNewImageBufferTemp = malloc(newFileSize);
+	if (!pNewImageBufferTemp)
+	{
+		printf("(ExpandLastSection)内存分配失败\n");
+		free(pImageBuffer);
+		return 0;
+	}
+
+	memset(pNewImageBufferTemp, 0, newFileSize);
+	memcpy(pNewImageBufferTemp, pImageBuffer, fileSize);
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pNewImageBufferTemp;
+	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pNewImageBufferTemp + pDosHeader->e_lfanew);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER32)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
+
+	index = pPEHeader->NumberOfSections;
+	//计算最后一节扩大后在内存的大小
+	newSectionSize = pOptionHeader->SizeOfImage - pSectionHeader[index - 1].VirtualAddress + addSize;
+	//将最后一节的VirtualSize和SizeOfRawData都设置为新的大小
+	pSectionHeader[index - 1].Misc.VirtualSize = newSectionSize;
+	pSectionHeader[index - 1].SizeOfRawData = newSectionSize;
+	//修改SizeOfImage
+	pOptionHeader->SizeOfImage += addSize;
+
+	return TRUE;
 }
