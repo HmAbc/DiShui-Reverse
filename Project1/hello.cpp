@@ -1,8 +1,8 @@
-#include "Globle.h"
+#include "hello.h"
 
 DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	errno_t err = 0;
 	DWORD fileSize = 0;
 	PVOID pFileBufferTemp = NULL;
@@ -158,7 +158,7 @@ DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID* pNewBuffer)
 
 BOOL MemoryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPCSTR lpszFile)
 {
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	errno_t err = 0;
 	err = fopen_s(&pFile, lpszFile, "wb+");
 	if (!pFile)
@@ -227,14 +227,14 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 		free(pFileBuffer);
 		return 0;
 	}
-	
-	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pFileBuffer+pDosHeader->e_lfanew);
+
+	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
 	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER32)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
-	
+
 	//目的起始地址
-	pNewNtHeader = (LPVOID)((DWORD)(*pImageBuffer)+ 64);
+	pNewNtHeader = (LPVOID)((DWORD)(*pImageBuffer) + 64);
 	//要移动的大小
 	size = 4 + IMAGE_SIZEOF_FILE_HEADER + pPEHeader->SizeOfOptionalHeader + (pPEHeader->NumberOfSections) * 40;
 	//开始移动
@@ -340,7 +340,7 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD
 
 	*pNewImageBuffer = pNewImageBufferTemp;
 	pNewImageBufferTemp = NULL;
-	return newFileSize;	
+	return newFileSize;
 }
 
 BOOL ExpandLastSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize)
@@ -382,7 +382,5 @@ BOOL ExpandLastSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN D
 	//修改SizeOfImage
 	pOptionHeader->SizeOfImage += addSize;
 
-	*pNewImageBuffer = pNewImageBufferTemp;
-	pNewImageBufferTemp = NULL;
 	return TRUE;
 }

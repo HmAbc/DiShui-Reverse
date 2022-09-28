@@ -42,7 +42,7 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer);
 /// @brief 合并所有section为一个
 /// @param pImageBuffer 经过拉伸的文件地址
 /// @return 成功返回TRUE，pImageBuffer保存合并section后的文件在内存的地址，失败返回FALSE
-BOOL MergeSections(OUT LPVOID *pImageBuffer);
+BOOL MergeSections(OUT LPVOID* pImageBuffer);
 
 /// @brief 在PE文件最后添加一个节
 /// @param pImageBuffer 经过拉伸的文件地址
