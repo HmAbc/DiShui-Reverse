@@ -1,6 +1,8 @@
 #include "Globle.h"
+#include "PrintItem.h"
 
-#define FILEPATH_IN "d:/notepad.exe"
+//#define FILEPATH_IN "d:/notepad.exe"
+#define FILEPATH_IN "d:/MyDLL.dll"
 #define FILEPATH_OUT "d:/notepad_new.exe"
 #define MESSAGEBOXADDR 0x766C3B90
 
@@ -53,14 +55,14 @@ DWORD InsertCodeToFirstSection()
 	DWORD size = ReadPEFile(FILEPATH_IN, &pFileBuffer);
 	if (!pFileBuffer)
 	{
-		printf("文件读取失败\n");
+		printf("(InsertCodeToFirstSection)文件读取失败\n");
 		return 0;
 	}
 
 	CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
 	if (!pImageBuffer)
 	{
-		printf("filebuffer -> imagebuffer 失败\n");
+		printf("(InsertCodeToFirstSection)filebuffer -> imagebuffer 失败\n");
 		free(pFileBuffer);
 		return 0;
 	}
@@ -73,7 +75,7 @@ DWORD InsertCodeToFirstSection()
 
 	if (pSectionHeader->SizeOfRawData - pSectionHeader->Misc.VirtualSize < ShellCodeLength)
 	{
-		printf("代码区空间不足\n");
+		printf("(InsertCodeToFirstSection)代码区空间不足\n");
 		free(pFileBuffer);
 		free(pImageBuffer);
 		return 0;
@@ -96,7 +98,7 @@ DWORD InsertCodeToFirstSection()
 	fileSize = CopyImageBufferToNewBuffer(pImageBuffer, &pNewBuffer);
 	if (!pNewBuffer)
 	{
-		printf("pImageBuffer ->pNewBuffer 失败\n");
+		printf("(InsertCodeToFirstSection)pImageBuffer ->pNewBuffer 失败\n");
 		free(pImageBuffer);
 		free(pFileBuffer);
 		return 0;
@@ -105,14 +107,14 @@ DWORD InsertCodeToFirstSection()
 	BOOL isOK = MemoryToFile(pNewBuffer, fileSize, FILEPATH_OUT);
 	if (!isOK)
 	{
-		printf("文件保存失败\n");
+		printf("(InsertCodeToFirstSection)文件保存失败\n");
 		free(pFileBuffer);
 		free(pImageBuffer);
 		free(pNewBuffer);
 		return 0;
 	}
 
-	printf("保存成功\n");
+	printf("(InsertCodeToFirstSection)保存成功\n");
 	free(pFileBuffer);
 	free(pImageBuffer);
 	free(pNewBuffer);
@@ -412,6 +414,36 @@ BOOL ModifyLastSectionSize()
 	return TRUE;
 }
 
+VOID PrintExport()
+{
+	LPVOID pFileBuffer = NULL;
+
+	ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(ReadPEFile)文件读取失败\n");
+		return;
+	}
+
+	PrintExportTable(pFileBuffer);
+	free(pFileBuffer);
+}
+
+VOID PrintRelocation()
+{
+	LPVOID pFileBuffer = 0;
+
+	ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(PrintRelocation)文件读取失败\n");
+		return;
+	}
+
+	PrintRelocationTable(pFileBuffer);
+	free(pFileBuffer);
+}
+
 int main()
 {
 	//InsertCodeToFirstSection();
@@ -426,7 +458,11 @@ int main()
 
 	//AddNewSectionAtEnd();
 
-	ModifyLastSectionSize();
+	//ModifyLastSectionSize();
+
+	//PrintExport();
+
+	PrintRelocation();
 
 	return 0;
 }

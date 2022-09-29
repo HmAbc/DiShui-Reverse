@@ -190,7 +190,6 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 
 	if (dwRVA <= pOptionHeader->SizeOfHeaders)
 	{
-		free(pFileBuffer);
 		return dwRVA;
 	}
 	else
@@ -200,7 +199,6 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 			if (pSectionHeader[i].VirtualAddress + pSectionHeader[i].SizeOfRawData >= dwRVA)
 			{
 				dwFOA = dwRVA - pSectionHeader[i].VirtualAddress + pSectionHeader[i].PointerToRawData;
-				free(pFileBuffer);
 				return dwFOA;
 			}
 		}
