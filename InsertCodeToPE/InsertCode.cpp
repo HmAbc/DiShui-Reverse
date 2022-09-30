@@ -1,4 +1,4 @@
-#include "Globle.h"
+#include "Global.h"
 #include "PrintItem.h"
 
 //#define FILEPATH_IN "d:/notepad.exe"

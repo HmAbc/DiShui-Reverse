@@ -1,5 +1,5 @@
 #pragma once
-#include "Globle.h"
+#include "Global.h"
 
 /// @brief 打印导出表
 /// @param pFileBuffer 读取的文件在内存的地址

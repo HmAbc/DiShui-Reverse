@@ -1,4 +1,4 @@
-#include "Globle.h"
+#include "Global.h"
 
 DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
