@@ -127,12 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Globle.h" />
+    <ClInclude Include="Global.h" />
     <ClInclude Include="PrintItem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\MyDLL\dllmain.cpp" />
-    <ClCompile Include="Globle.cpp" />
+    <ClCompile Include="Global.cpp" />
     <ClCompile Include="InsertCode.cpp" />
     <ClCompile Include="PrintItem.cpp" />
   </ItemGroup>
