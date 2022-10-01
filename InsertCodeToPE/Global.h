@@ -44,14 +44,14 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer);
 /// @return 成功返回TRUE，pImageBuffer保存合并section后的文件在内存的地址，失败返回FALSE
 BOOL MergeSections(OUT LPVOID *pImageBuffer);
 
-/// @brief 在PE文件最后添加一个节
-/// @param pImageBuffer 经过拉伸的文件地址
+/// @brief 在PE文件最后添加一个节，可以加在拉伸或未拉伸的文件后
+/// @param pImageBuffer 文件地址
 /// @param pNewImageBuffer 添加完section的文件地址
-/// @param fileSize 经过拉伸的文件的大小
+/// @param fileSize 需要添加节的文件的大小
 /// @param addSize 要增加的节大小，有内存对齐要求
 /// @param name 要增加节的名字，字节数组
 /// @return 成功返回TRUE，pNewImageBuffer保存添加section后的文件地址，失败返回FALSE
-BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name);
+BOOL AddNewSectionInMemory(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name);
 
 /// @brief 扩大PE文件最后一个节
 /// @param pImageBuffer 经过拉伸的文件地址

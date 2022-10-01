@@ -288,7 +288,7 @@ BOOL MergeSections(OUT LPVOID* pImageBuffer)
 	return TRUE;
 }
 
-BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name)
+BOOL AddNewSectionInMemory(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -319,7 +319,7 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 
 	index = pPEHeader->NumberOfSections;
-	newSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pSectionHeader + index * sizeof(IMAGE_SECTION_HEADER));
+	newSectionHeader = pSectionHeader + index;
 	memcpy(newSectionHeader->Name, name, 8);
 	newSectionHeader->Misc.VirtualSize = addSize;
 	newSectionHeader->VirtualAddress = pOptionHeader->SizeOfImage;
@@ -329,7 +329,7 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD
 	newSectionHeader->PointerToLinenumbers = 0;
 	newSectionHeader->NumberOfRelocations = 0;
 	newSectionHeader->NumberOfLinenumbers = 0;
-	newSectionHeader->Characteristics = pSectionHeader->Characteristics;
+	newSectionHeader->Characteristics = 0xE0000020;
 	//在节表后添加一个全零节表，表示结束
 	memset(newSectionHeader + 1, 0, sizeof(IMAGE_SECTION_HEADER));
 

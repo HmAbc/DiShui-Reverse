@@ -1,4 +1,4 @@
-#include "PrintItem.h"
+#include "Global.h"
 
 DWORD PrintExportTable(IN LPVOID pFileBuffer)
 {
@@ -118,4 +118,40 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	}
 
 	return 0;
+}
+
+BOOL MoveExportTable(IN LPVOID pFileBuffer)
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_DATA_DIRECTORY pImageData = NULL;
+	PIMAGE_EXPORT_DIRECTORY pImageExport = NULL;
+	PSHORT exportAddr = 0;
+	DWORD exportSize = 0;
+	DWORD numberOfItem = 0;
+	DWORD index = 0;
+
+	if (!pFileBuffer)
+	{
+		printf("(PrintExportTable)FileBuffer 获取失败\n");
+		return 0;
+	}
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+
+	pImageData = pOptionHeader->DataDirectory;
+	pImageExport = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pImageData->VirtualAddress) + (DWORD)pFileBuffer);
+
+	if (!pImageExport)
+	{
+		printf("(MoveExportTable)没有找到导出表\n");
+		return 0;
+	}
+	
+
 }

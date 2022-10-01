@@ -18,7 +18,7 @@
     <ClInclude Include="Global.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="PrintItem.h">
+    <ClInclude Include="TableOperate.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClCompile Include="InsertCode.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="PrintItem.cpp">
+    <ClCompile Include="TableOperate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\MyDLL\dllmain.cpp">
