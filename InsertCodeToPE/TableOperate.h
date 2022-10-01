@@ -16,5 +16,8 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer);
 /// @return 成功返回TRUE
 BOOL MoveExportTable(IN LPVOID pFileBuffer);
 
-
+/// @brief 移动重定位表到最后一个节中（需要提前在文件最后添加一个节）
+/// @param pFileBuffer 添加完节的文件的地址
+/// @return 成功返回TRUE
+BOOL MoveRelocationTable(IN LPVOID pFileBuffer);
 

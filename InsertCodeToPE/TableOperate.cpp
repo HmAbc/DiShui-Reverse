@@ -139,7 +139,7 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 
 	if (!pFileBuffer)
 	{
-		printf("(PrintExportTable)FileBuffer 获取失败\n");
+		printf("(MoveExportTable)FileBuffer 获取失败\n");
 		return 0;
 	}
 
@@ -194,6 +194,50 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	pExportDirectory->AddressOfFunctions = tempAddr;
 	pExportDirectory->AddressOfNameOrdinals = tempAddr + pExportDirectory->NumberOfFunctions * 4;
 	pExportDirectory->AddressOfNames = tempAddr + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
+
+	return TRUE;
+}
+
+BOOL MoveRelocationTable(IN LPVOID pFileBuffer)
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
+	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
+	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
+	DWORD index = 0;
+	DWORD newRelocation = 0;		//新重定位表起始，就是最后一节在内存的实际地址
+	DWORD tempAddr = 0;
+
+	if (!pFileBuffer)
+	{
+		printf("(MoveRelocationTable)FileBuffer 获取失败\n");
+		return 0;
+	}
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + 4);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + pDosHeader->e_lfanew);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
+
+	pDataDirectory = pOptionHeader->DataDirectory;
+	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pDataDirectory[5].VirtualAddress) + (DWORD)pFileBuffer);
+	
+	index = pPEHeader->NumberOfSections;
+	newRelocation = (pSectionHeader + index - 1)->PointerToRawData + (DWORD)pFileBuffer;
+
+	while (pBaseRelocation->VirtualAddress && pBaseRelocation->SizeOfBlock)
+	{
+		memcpy((LPVOID)newRelocation, (LPVOID)pBaseRelocation, pBaseRelocation->SizeOfBlock);
+		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
+		newRelocation += pBaseRelocation->SizeOfBlock;
+	}
+
+	//修复重定位表地址，RVA
+	pBaseRelocation->VirtualAddress = (pSectionHeader + index - 1)->VirtualAddress;
 
 	return TRUE;
 }
