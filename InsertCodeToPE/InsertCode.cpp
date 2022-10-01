@@ -1,9 +1,12 @@
+#include <math.h>
 #include "Global.h"
 #include "TableOperate.h"
 
+
 //#define FILEPATH_IN "d:/notepad.exe"
 #define FILEPATH_IN "d:/MyDLL.dll"
-#define FILEPATH_OUT "d:/notepad_new.exe"
+//#define FILEPATH_OUT "d:/notepad_new.exe"
+#define FILEPATH_OUT "d:/MyDLL_new.dll"
 #define MESSAGEBOXADDR 0x766C3B90
 
 BYTE SHELLCODE[] =
@@ -236,7 +239,7 @@ BOOL MoveHeaderBehindDosHeader()
 		return 0;
 	}
 
-	isOk = MoveHeader(pFileBuffer, &pImageBuffer);
+	isOk = MoveHeader(pImageBuffer);
 	if (!isOk)
 	{
 		printf("(MoveHeaderBehindDosHeader)移动文件头失败\n");
@@ -260,7 +263,7 @@ BOOL MergeSectionsToOne()
 	LPVOID pFileBuffer = NULL;
 	LPVOID pImageBuffer = NULL;
 	LPVOID pNewBuffer = NULL;
-	BOOL isOk = FALSE;
+	BOOL isOK = FALSE;
 	DWORD fileSize = 0;
 
 	ReadPEFile(FILEPATH_IN, &pFileBuffer);
@@ -278,8 +281,8 @@ BOOL MergeSectionsToOne()
 		return 0;
 	}
 
-	isOk = MergeSections(&pImageBuffer);
-	if (!isOk)
+	isOK = MergeSections(&pImageBuffer);
+	if (!isOK)
 	{
 		printf("(MergeSectionsToOne)合并section失败\n");
 		free(pFileBuffer);
@@ -304,10 +307,10 @@ BOOL AddNewSectionAtEnd()
 	LPVOID pImageBuffer = NULL;
 	LPVOID pNewImageBuffer = NULL;
 	LPVOID pNewBuffer = NULL;
-	BOOL isOk = FALSE;
+	BOOL isOK = FALSE;
 	DWORD fileSize = 0;
 	DWORD newFileSize = 0;
-	BYTE name[8] = "newSec";
+	CHAR name[8] = "newSec";
 
 	ReadPEFile(FILEPATH_IN, &pFileBuffer);
 	if (!pFileBuffer)
@@ -324,8 +327,8 @@ BOOL AddNewSectionAtEnd()
 		return 0;
 	}
 
-	isOk = MoveHeader(pFileBuffer, &pImageBuffer);
-	if (!isOk)
+	isOK = MoveHeader(pImageBuffer);
+	if (!isOK)
 	{
 		printf("(AddNewSectionAtEnd)移动文件头失败\n");
 		free(pFileBuffer);
@@ -367,7 +370,6 @@ BOOL ModifyLastSectionSize()
 	LPVOID pImageBuffer = NULL;
 	LPVOID pNewImageBuffer = NULL;
 	LPVOID pNewBuffer = NULL;
-	BOOL isOk = FALSE;
 	DWORD fileSize = 0;
 	DWORD newFileSize = 0;
 
@@ -444,6 +446,84 @@ VOID PrintRelocation()
 	free(pFileBuffer);
 }
 
+BOOL TestMoveExportTable()
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_EXPORT_DIRECTORY pExportDirectory = NULL;
+	LPVOID pFileBuffer = NULL;
+	LPVOID pNewFileBuffer = NULL;
+	CHAR name[8] = "NewSec";
+	DWORD addrOfName = 0;
+	DWORD nameStrAddr = 0;
+	DWORD sizeOfExport = 0;
+	DWORD fileSize = 0;
+	DWORD addSize = 0;
+	BOOL isOK = FALSE;
+
+	fileSize = ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(TestMoveExportTable)文件读取失败\n");
+		return FALSE;
+	}
+	
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+
+	//将导出表RVA转换成FOA，再加上起始地址，算出在内存实际地址
+	pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pOptionHeader->DataDirectory->VirtualAddress) + (DWORD)pFileBuffer);
+	//计算名字表在内存实际地址
+	addrOfName = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfNames) + (DWORD)pFileBuffer;
+	sizeOfExport = pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 6;
+	for (DWORD i = 0; i < pExportDirectory->NumberOfNames; i++)
+	{
+		//计算名字每一项在内存的实际地址
+		nameStrAddr = RVAtoFOA(pFileBuffer, ((PDWORD)addrOfName)[i]) + (DWORD)pFileBuffer;
+		sizeOfExport += strlen((PCHAR)nameStrAddr) + 1;
+		//printf("%s 长度：%d，sizeOfExport: %#x\n", (PCHAR)nameStrAddr, strlen((PCHAR)nameStrAddr) + 1, sizeOfExport);
+	}
+	addSize = ceil(sizeOfExport / (FLOAT)0x1000) * 0x1000;
+	printf("导出表大小：%#x，需要新增节的大小：%#x\n", sizeOfExport, addSize);
+
+	isOK = MoveHeader(pFileBuffer);
+	if (!isOK)
+	{
+		printf("(TestMoveExportTable)移动头文件失败\n");
+		free(pFileBuffer);
+		return FALSE;
+	}
+
+	AddNewSection(pFileBuffer, &pNewFileBuffer, fileSize, addSize, name);
+	if (!pNewFileBuffer)
+	{
+		printf("(TestMoveExportTable)新增节失败\n");
+		free(pFileBuffer);
+		return FALSE;
+	}
+
+	isOK = MoveExportTable(pNewFileBuffer);
+	if (!isOK)
+	{
+		printf("(TestMoveExportTable)移动导出表失败\n");
+		free(pFileBuffer);
+		free(pNewFileBuffer);
+		return FALSE;
+	}
+
+	MemoryToFile(pNewFileBuffer, fileSize + addSize, FILEPATH_OUT);
+	printf("(TestMoveExportTable)移动导出成功\n");
+	free(pFileBuffer);
+	free(pNewFileBuffer);
+	return TRUE;
+
+
+}
+
 int main()
 {
 	//InsertCodeToFirstSection();
@@ -462,7 +542,9 @@ int main()
 
 	//PrintExport();
 
-	PrintRelocation();
+	//PrintRelocation();
+
+	TestMoveExportTable();
 
 	return 0;
 }

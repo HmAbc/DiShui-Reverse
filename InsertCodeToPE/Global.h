@@ -33,11 +33,10 @@ BOOL MemoryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPCSTR lpszFile);
 /// @return 返回转换后FOA值，失败返回0
 DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA);
 
-/// @brief 将拉伸后的文件头中的NTHeader处向前移动到DOSHeader->e_lfanew后
+/// @brief 将PE头文件中的NTHeader处向前移动到DOSHeader->e_lfanew后
 /// @param pFileBuffer 文件缓冲区地址
-/// @param pImageBuffer 经过拉伸的文件地址
-/// @return 成功返回TRUE，pImageBuffer保存文件头移动后的文件在内存的地址，失败返回FALSE
-BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer);
+/// @return 成功返回TRUE，失败返回FALSE
+BOOL MoveHeader(IN LPVOID pFileBuffer);
 
 /// @brief 合并所有section为一个
 /// @param pImageBuffer 经过拉伸的文件地址
@@ -51,7 +50,7 @@ BOOL MergeSections(OUT LPVOID *pImageBuffer);
 /// @param addSize 要增加的节大小，有内存对齐要求
 /// @param name 要增加节的名字，字节数组
 /// @return 成功返回TRUE，pNewImageBuffer保存添加section后的文件地址，失败返回FALSE
-BOOL AddNewSectionInMemory(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name);
+BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PCHAR name);
 
 /// @brief 扩大PE文件最后一个节
 /// @param pImageBuffer 经过拉伸的文件地址

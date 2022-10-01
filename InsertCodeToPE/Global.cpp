@@ -2,6 +2,7 @@
 
 DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	FILE *pFile = NULL;
 	errno_t err = 0;
 	DWORD fileSize = 0;
@@ -32,6 +33,19 @@ DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 	{
 		printf("(ReadPEFile)读取文件失败\n");
 		fclose(pFile);
+		free(pFileBufferTemp);
+		return 0;
+	}
+	if (*((PWORD)pFileBufferTemp) != IMAGE_DOS_SIGNATURE)
+	{
+		printf("(ReadPEFile)无效的MZ标识\n");
+		free(pFileBufferTemp);
+		return 0;
+	}
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBufferTemp;
+	if (*((LPWORD)((DWORD)pFileBufferTemp + pDosHeader->e_lfanew)) != IMAGE_NT_SIGNATURE)
+	{
+		printf("(ReadPEFile)无效的PE标记\n");
 		free(pFileBufferTemp);
 		return 0;
 	}
@@ -206,7 +220,7 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 	return 0;
 }
 
-BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
+BOOL MoveHeader(IN LPVOID pFileBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;
@@ -219,10 +233,9 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 
 	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
 	//如果dosheader和ntheader之间不够一个节大小，不移动
-	if (pDosHeader->e_lfanew - 64 < 40)
+	if (pDosHeader->e_lfanew - 64 < IMAGE_SIZEOF_SECTION_HEADER)
 	{
 		printf("(MoveHeader)空间不足，无法移动header\n");
-		free(pFileBuffer);
 		return 0;
 	}
 	
@@ -232,15 +245,15 @@ BOOL MoveHeader(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 	
 	//目的起始地址
-	pNewNtHeader = (LPVOID)((DWORD)(*pImageBuffer)+ 64);
+	pNewNtHeader = (LPVOID)((DWORD)(pFileBuffer)+ 64);
 	//要移动的大小
 	size = 4 + IMAGE_SIZEOF_FILE_HEADER + pPEHeader->SizeOfOptionalHeader + (pPEHeader->NumberOfSections) * 40;
 	//开始移动
 	memcpy(pNewNtHeader, (LPVOID)pNtHeader, size);
 	//在最后一个section后面添加一个全0的section
-	memset((LPVOID)((DWORD)(*pImageBuffer) + 64 + size), 0, 40);
+	memset((LPVOID)((DWORD)(pFileBuffer) + 64 + size), 0, 40);
 	//设置elfanew的值
-	((PIMAGE_DOS_HEADER)(*pImageBuffer))->e_lfanew = 64;
+	((PIMAGE_DOS_HEADER)(pFileBuffer))->e_lfanew = 64;
 
 	return TRUE;
 }
@@ -288,7 +301,7 @@ BOOL MergeSections(OUT LPVOID* pImageBuffer)
 	return TRUE;
 }
 
-BOOL AddNewSectionInMemory(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PBYTE name)
+BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PCHAR name)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS32 pNtHeader = NULL;

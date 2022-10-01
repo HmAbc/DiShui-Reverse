@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Global.h"
 
 DWORD PrintExportTable(IN LPVOID pFileBuffer)
@@ -126,11 +127,14 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	PIMAGE_NT_HEADERS pNtHeader = NULL;
 	PIMAGE_FILE_HEADER pPEHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
-	PIMAGE_DATA_DIRECTORY pImageData = NULL;
-	PIMAGE_EXPORT_DIRECTORY pImageExport = NULL;
-	PSHORT exportAddr = 0;
-	DWORD exportSize = 0;
-	DWORD numberOfItem = 0;
+	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
+	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
+	PIMAGE_EXPORT_DIRECTORY pExportDirectory = NULL;
+	DWORD tempAddr = 0;			//临时变量，保存中间地址
+	DWORD tempName = 0;			//临时变量，保存名字字符串在内存的实际地址
+	DWORD dstNameAddr = 0;		//保存pExportDirectory->AddressOfNames表的目标地址
+	DWORD dstNameStr = 0;		//pExportDirectory->AddressOfNames表中的地址指向的字符串被移动的目的地址
+	DWORD lastSection = 0;		//最后一节在内存的实际地址
 	DWORD index = 0;
 
 	if (!pFileBuffer)
@@ -143,15 +147,51 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
 	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 
-	pImageData = pOptionHeader->DataDirectory;
-	pImageExport = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pImageData->VirtualAddress) + (DWORD)pFileBuffer);
+	pDataDirectory = pOptionHeader->DataDirectory;
+	//导出表在内存的实际地址
+	pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pDataDirectory->VirtualAddress) + (DWORD)pFileBuffer);
 
-	if (!pImageExport)
+	if (!pExportDirectory)
 	{
 		printf("(MoveExportTable)没有找到导出表\n");
 		return 0;
 	}
 	
+	index = pPEHeader->NumberOfSections;
+	//最后一节在内存的实际地址，PointerToRawData是FOA，不需要转换
+	lastSection = (pSectionHeader + index - 1)->PointerToRawData + (DWORD)pFileBuffer;
+	//拷贝AddressOfFunctions到最后一节起始地址
+	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfFunctions) + (DWORD)pFileBuffer;
+	memcpy((LPVOID)lastSection, (LPVOID)tempAddr, pExportDirectory->NumberOfFunctions * 4);
+	//拷贝AddressOfNameOrdinals
+	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfNameOrdinals) + (DWORD)pFileBuffer;
+	memcpy((LPVOID)(lastSection + pExportDirectory->NumberOfFunctions * 4), (LPVOID)tempAddr, pExportDirectory->NumberOfNames * 2);
 
+	//拷贝AddressOfNames
+	//原导出表中AddressOfNames的FOA，是一个数组，每一项表示一个名字的地址，指向一个字符串
+	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfNames) + (DWORD)pFileBuffer;
+	//新段中保存AddressOfNames的起始FOA，长度是函数名字项数*4，每一项是一个地址
+	dstNameAddr = lastSection + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
+	//新段中名字字符串起始地址
+	dstNameStr = dstNameAddr + pExportDirectory->NumberOfNames * 4;
+	for (DWORD i = 0; i < pExportDirectory->NumberOfNames; i++)
+	{
+		//设置pExportDirectory->AddressOfFunctions为新的地址
+		((PDWORD)dstNameAddr)[i] = dstNameStr;
+		//计算名字每一项在内存的实际地址
+		tempName = RVAtoFOA(pFileBuffer, ((PDWORD)tempAddr)[i]) + (DWORD)pFileBuffer;
+		strcpy((PCHAR)dstNameStr, (PCHAR)tempName);
+		//移动名字字符串地址到下一个位置
+		dstNameStr += strlen((PCHAR)tempName) + 1;
+	}
+
+	//修复导出表，需要使用的是RVA
+	tempAddr = (pSectionHeader + index - 1)->PointerToRawData;
+	pExportDirectory->AddressOfFunctions = tempAddr;
+	pExportDirectory->AddressOfNameOrdinals = tempAddr + pExportDirectory->NumberOfFunctions * 4;
+	pExportDirectory->AddressOfNames = tempAddr + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
+
+	return TRUE;
 }
