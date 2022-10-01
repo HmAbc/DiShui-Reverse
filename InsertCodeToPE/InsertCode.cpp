@@ -1,5 +1,5 @@
 #include "Global.h"
-#include "PrintItem.h"
+#include "TableOperate.h"
 
 //#define FILEPATH_IN "d:/notepad.exe"
 #define FILEPATH_IN "d:/MyDLL.dll"

@@ -128,13 +128,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Global.h" />
-    <ClInclude Include="PrintItem.h" />
+    <ClInclude Include="TableOperate.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\MyDLL\dllmain.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="InsertCode.cpp" />
-    <ClCompile Include="PrintItem.cpp" />
+    <ClCompile Include="TableOperate.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
