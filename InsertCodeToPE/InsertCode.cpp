@@ -497,6 +497,7 @@ BOOL TestMoveExportTable()
 		free(pFileBuffer);
 		return FALSE;
 	}
+	isOK = FALSE;
 
 	AddNewSection(pFileBuffer, &pNewFileBuffer, fileSize, addSize, name);
 	if (!pNewFileBuffer)

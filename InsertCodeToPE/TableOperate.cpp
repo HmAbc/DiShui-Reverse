@@ -174,12 +174,14 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfNames) + (DWORD)pFileBuffer;
 	//新段中保存AddressOfNames的起始FOA，长度是函数名字项数*4，每一项是一个地址
 	dstNameAddr = lastSection + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
-	//新段中名字字符串起始地址
+	printf("%#x\n", dstNameAddr);
+	//新段中名字字符串起始地址，FOA
 	dstNameStr = dstNameAddr + pExportDirectory->NumberOfNames * 4;
 	for (DWORD i = 0; i < pExportDirectory->NumberOfNames; i++)
 	{
-		//设置pExportDirectory->AddressOfFunctions为新的地址
-		((PDWORD)dstNameAddr)[i] = dstNameStr;
+		//设置pExportDirectory->AddressOfFunctions为新的地址，将新的地址转换为RVA
+		((PDWORD)dstNameAddr)[i] = dstNameStr - (DWORD)pFileBuffer - (pSectionHeader + index - 1)->PointerToRawData + (pSectionHeader + index - 1)->VirtualAddress;
+		printf("%#x\n", ((PDWORD)dstNameAddr)[i]);
 		//计算名字每一项在内存的实际地址
 		tempName = RVAtoFOA(pFileBuffer, ((PDWORD)tempAddr)[i]) + (DWORD)pFileBuffer;
 		strcpy((PCHAR)dstNameStr, (PCHAR)tempName);
@@ -188,7 +190,7 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	}
 
 	//修复导出表，需要使用的是RVA
-	tempAddr = (pSectionHeader + index - 1)->PointerToRawData;
+	tempAddr = (pSectionHeader + index - 1)->VirtualAddress;
 	pExportDirectory->AddressOfFunctions = tempAddr;
 	pExportDirectory->AddressOfNameOrdinals = tempAddr + pExportDirectory->NumberOfFunctions * 4;
 	pExportDirectory->AddressOfNames = tempAddr + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
