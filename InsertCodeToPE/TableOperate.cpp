@@ -266,14 +266,15 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 	PIMAGE_NT_HEADERS pNtHeader = NULL;
 	PIMAGE_FILE_HEADER pPEHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
-	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
 	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
 	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
-	PIMAGE_BASE_RELOCATION pBaseRelocationTemp = NULL;
+	PSHORT pBaseRelocationTemp = NULL;
 	LONG newImageBase = 0;
 	LONG diff = 0;
 	DWORD newRelocation = 0;		//新重定位表起始，就是最后一节在内存的实际地址
 	DWORD tempAddr = 0;
+	DWORD numOfAddr = 0;
+	DWORD tempNumber = 0;
 	DWORD sizeOfRelocation = 0;		//重定位表的大小（所有）
 
 	if (!pFileBuffer)
@@ -286,7 +287,6 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + 4);
 	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + pDosHeader->e_lfanew);
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
-	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 
 	newImageBase = pOptionHeader->ImageBase;
 	pDataDirectory = pOptionHeader->DataDirectory;
@@ -295,7 +295,18 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 
 	while (pBaseRelocation->VirtualAddress)
 	{
-		pBaseRelocation->VirtualAddress += diff;
+		tempAddr = RVAtoFOA(pFileBuffer, pBaseRelocation->VirtualAddress) + (DWORD)pFileBuffer;
+		pBaseRelocationTemp = (PSHORT)(tempAddr + 8);
+		numOfAddr = (pBaseRelocation->SizeOfBlock - 8) / 2;
+		for (DWORD i = 0; i < numOfAddr; i++)
+		{
+			//判断高4位是否是3
+			if ((pBaseRelocationTemp[i] & 0x3000) == 0x3000)
+			{
+				tempNumber = pBaseRelocationTemp[i] & 0xFFF;
+				*((PDWORD)(tempNumber + tempAddr)) += diff;
+			}
+		}
 		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
 	}
 

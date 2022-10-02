@@ -341,7 +341,7 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD
 	newSectionHeader->PointerToLinenumbers = 0;
 	newSectionHeader->NumberOfRelocations = 0;
 	newSectionHeader->NumberOfLinenumbers = 0;
-	newSectionHeader->Characteristics = 0x40000040;
+	newSectionHeader->Characteristics = 0xE0000060;
 	//在节表后添加一个全零节表，表示结束
 	memset(newSectionHeader + 1, 0, sizeof(IMAGE_SECTION_HEADER));
 

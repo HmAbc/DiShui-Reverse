@@ -611,13 +611,13 @@ BOOL TestRepairRelocationTable()
 	isOK = RepairRelocationTable(pFileBuffer, 0x10000000);
 	if (!isOK)
 	{
-		printf("(TestRepairRelocationTable)导出表修复失败\n");
+		printf("(TestRepairRelocationTable)重定位表修复失败\n");
 		free(pFileBuffer);
 		return 0;
 	}
 
 	MemoryToFile(pFileBuffer, fileSize, "d:/MyDLL_repair.dll");
-	printf("(TestRepairRelocationTable)导出表修复成功\n");
+	printf("(TestRepairRelocationTable)重定位表修复成功\n");
 	free(pFileBuffer);
 
 	return 0;
