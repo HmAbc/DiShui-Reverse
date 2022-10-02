@@ -2,6 +2,9 @@
 #include <Windows.h>
 #include <stdio.h>
 
+#define TEXT 0
+#define EXPORT 1
+
 /// @brief 将硬盘中的文件读取到内存中，缓冲区地址指针为pFileBuffer
 /// @param lpszFile 文件路径
 /// @param pFileBuffer 文件缓冲区，读取成功后是文件在内存的起始地址
@@ -49,6 +52,7 @@ BOOL MergeSections(OUT LPVOID *pImageBuffer);
 /// @param fileSize 需要添加节的文件的大小
 /// @param addSize 要增加的节大小，有内存对齐要求
 /// @param name 要增加节的名字，字节数组
+/// @param characteristic 指定添加节的属性，查看头文件获取宏定义
 /// @return 成功返回TRUE，pNewImageBuffer保存添加section后的文件地址，失败返回FALSE
 BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PCHAR name);
 

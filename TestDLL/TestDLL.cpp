@@ -9,7 +9,7 @@ Plus MyPlus;
 
 int main()
 {
-    HMODULE hModule = LoadLibrary(TEXT("d:/MyDLL_new.dll"));
+    HMODULE hModule = LoadLibrary(TEXT("d:/MyDLL_repair.dll"));
 
     if (!hModule)
     {

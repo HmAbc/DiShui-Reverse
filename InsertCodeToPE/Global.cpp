@@ -17,7 +17,6 @@ DWORD ReadPEFile(IN LPCSTR lpszFile, OUT LPVOID* pFileBuffer)
 
 	fseek(pFile, 0, SEEK_END);
 	fileSize = ftell(pFile);
-	printf("filebuffer: %#x\n", fileSize);
 	fseek(pFile, 0, SEEK_SET);
 
 	pFileBufferTemp = malloc(fileSize);
@@ -342,12 +341,12 @@ BOOL AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD
 	newSectionHeader->PointerToLinenumbers = 0;
 	newSectionHeader->NumberOfRelocations = 0;
 	newSectionHeader->NumberOfLinenumbers = 0;
-	newSectionHeader->Characteristics = 0xE0000020;
+	newSectionHeader->Characteristics = 0x40000040;
 	//在节表后添加一个全零节表，表示结束
 	memset(newSectionHeader + 1, 0, sizeof(IMAGE_SECTION_HEADER));
 
 	pPEHeader->NumberOfSections += 1;
-	pOptionHeader->SizeOfImage = newFileSize;
+	pOptionHeader->SizeOfImage += addSize;
 
 	*pNewImageBuffer = pNewImageBufferTemp;
 	pNewImageBufferTemp = NULL;

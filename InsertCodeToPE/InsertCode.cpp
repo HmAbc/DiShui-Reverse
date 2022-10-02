@@ -487,7 +487,7 @@ BOOL TestMoveExportTable()
 		sizeOfExport += strlen((PCHAR)nameStrAddr) + 1;
 		//printf("%s 长度：%d，sizeOfExport: %#x\n", (PCHAR)nameStrAddr, strlen((PCHAR)nameStrAddr) + 1, sizeOfExport);
 	}
-	addSize = ceil(sizeOfExport / (FLOAT)0x1000) * 0x1000;
+	addSize = ceil(sizeOfExport / (FLOAT)pOptionHeader->SectionAlignment) * pOptionHeader->SectionAlignment;
 	printf("导出表大小：%#x，需要新增节的大小：%#x\n", sizeOfExport, addSize);
 
 	isOK = MoveHeader(pFileBuffer);
@@ -559,17 +559,17 @@ BOOL TestMoveRelocationTable()
 		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
 	}
 
-	addSize = ceil(sizeOfRelocation / (FLOAT)0x1000) * 0x1000;
+	addSize = ceil(sizeOfRelocation / (FLOAT)pOptionHeader->SectionAlignment) * pOptionHeader->SectionAlignment;
 	printf("重定位表大小：%#x，需要新增节的大小：%#x\n", sizeOfRelocation, addSize);
 
-	/*isOK = MoveHeader(pFileBuffer);
+	isOK = MoveHeader(pFileBuffer);
 	if (!isOK)
 	{
 		printf("(TestMoveExportTable)移动头文件失败\n");
 		free(pFileBuffer);
 		return FALSE;
 	}
-	isOK = FALSE;*/
+	isOK = FALSE;
 
 	AddNewSection(pFileBuffer, &pNewFileBuffer, fileSize, addSize, name);
 	if (!pNewFileBuffer)
@@ -598,15 +598,28 @@ BOOL TestMoveRelocationTable()
 BOOL TestRepairRelocationTable()
 {
 	LPVOID pFileBuffer = NULL;
+	DWORD fileSize = 0;
+	BOOL isOK = 0;
 
-	ReadPEFile("d:/MyDLL_new.dll", &pFileBuffer);
+	fileSize = ReadPEFile("d:/MyDLL_new.dll", &pFileBuffer);
 	if (!pFileBuffer)
 	{
 		printf("(TestRepairRelocationTable)文件读取失败\n");
-		return FALSE;
+		return 0;
 	}
 
-	RepairRelocationTable(pFileBuffer, 0x10000000);
+	isOK = RepairRelocationTable(pFileBuffer, 0x10000000);
+	if (!isOK)
+	{
+		printf("(TestRepairRelocationTable)导出表修复失败\n");
+		free(pFileBuffer);
+		return 0;
+	}
+
+	MemoryToFile(pFileBuffer, fileSize, "d:/MyDLL_repair.dll");
+	printf("(TestRepairRelocationTable)导出表修复成功\n");
+	free(pFileBuffer);
+
 	return 0;
 }
 
@@ -630,9 +643,11 @@ int main()
 
 	//PrintRelocation();
 
-	TestMoveExportTable();
+	//TestMoveExportTable();
 
 	//TestMoveRelocationTable();
+
+	TestRepairRelocationTable();
 
 	return 0;
 }
