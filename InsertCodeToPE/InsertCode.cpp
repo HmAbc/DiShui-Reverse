@@ -562,14 +562,14 @@ BOOL TestMoveRelocationTable()
 	addSize = ceil(sizeOfRelocation / (FLOAT)0x1000) * 0x1000;
 	printf("重定位表大小：%#x，需要新增节的大小：%#x\n", sizeOfRelocation, addSize);
 
-	isOK = MoveHeader(pFileBuffer);
+	/*isOK = MoveHeader(pFileBuffer);
 	if (!isOK)
 	{
 		printf("(TestMoveExportTable)移动头文件失败\n");
 		free(pFileBuffer);
 		return FALSE;
 	}
-	isOK = FALSE;
+	isOK = FALSE;*/
 
 	AddNewSection(pFileBuffer, &pNewFileBuffer, fileSize, addSize, name);
 	if (!pNewFileBuffer)
@@ -607,6 +607,7 @@ BOOL TestRepairRelocationTable()
 	}
 
 	RepairRelocationTable(pFileBuffer, 0x10000000);
+	return 0;
 }
 
 int main()
@@ -629,9 +630,9 @@ int main()
 
 	//PrintRelocation();
 
-	//TestMoveExportTable();
+	TestMoveExportTable();
 
-	TestMoveRelocationTable();
+	//TestMoveRelocationTable();
 
 	return 0;
 }

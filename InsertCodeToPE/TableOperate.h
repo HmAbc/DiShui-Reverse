@@ -26,4 +26,4 @@ BOOL MoveRelocationTable(IN LPVOID pFileBuffer);
 /// @param originOEP 原来的入口地址
 /// @param newOEP 新的入口地址
 /// @return 成功返回TRUE
-BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN DWORD originImageBase);
+BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase);

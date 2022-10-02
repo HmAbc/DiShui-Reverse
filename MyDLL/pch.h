@@ -9,10 +9,10 @@
 
 // 添加要在此处预编译的标头
 #include "framework.h"
-extern "C" _declspec(dllexport)  int Plus(int x, int y);
-extern "C" _declspec(dllexport)  int Sub(int x, int y);
-extern "C" _declspec(dllexport)  int Mul(int x, int y);
-extern "C" _declspec(dllexport)  int Div(int x, int y);
+extern "C" _declspec(dllexport)  int WINAPI Plus(int x, int y);
+extern "C" _declspec(dllexport)  int WINAPI Sub(int x, int y);
+extern "C" _declspec(dllexport)  int WINAPI Mul(int x, int y);
+extern "C" _declspec(dllexport)  int WINAPI Div(int x, int y);
 
 
 #endif //PCH_H

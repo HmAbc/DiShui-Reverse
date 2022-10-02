@@ -54,7 +54,7 @@ DWORD PrintExportTable(IN LPVOID pFileBuffer)
 	{
 		tempFOA = RVAtoFOA(pFileBuffer, pImageExport->AddressOfNames);
 		tempFOA = RVAtoFOA(pFileBuffer, ((PDWORD)(tempFOA + (DWORD)pFileBuffer))[i]);
-		printf("函数地址：	%#x\n", tempFOA);
+		printf("函数名地址：	%#x\n", tempFOA);
 		printf("函数名称：	%s\n", (PBYTE)(tempFOA + (DWORD)pFileBuffer));
 	}
 	printf("*************************函数序号表*************************\n");
@@ -174,26 +174,36 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer)
 	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->AddressOfNames) + (DWORD)pFileBuffer;
 	//新段中保存AddressOfNames的起始FOA，长度是函数名字项数*4，每一项是一个地址
 	dstNameAddr = lastSection + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
-	printf("%#x\n", dstNameAddr);
 	//新段中名字字符串起始地址，FOA
 	dstNameStr = dstNameAddr + pExportDirectory->NumberOfNames * 4;
 	for (DWORD i = 0; i < pExportDirectory->NumberOfNames; i++)
 	{
 		//设置pExportDirectory->AddressOfFunctions为新的地址，将新的地址转换为RVA
 		((PDWORD)dstNameAddr)[i] = dstNameStr - (DWORD)pFileBuffer - (pSectionHeader + index - 1)->PointerToRawData + (pSectionHeader + index - 1)->VirtualAddress;
-		printf("%#x\n", ((PDWORD)dstNameAddr)[i]);
 		//计算名字每一项在内存的实际地址
 		tempName = RVAtoFOA(pFileBuffer, ((PDWORD)tempAddr)[i]) + (DWORD)pFileBuffer;
 		strcpy((PCHAR)dstNameStr, (PCHAR)tempName);
 		//移动名字字符串地址到下一个位置
 		dstNameStr += strlen((PCHAR)tempName) + 1;
 	}
+	//拷贝dll名字
+	tempAddr = RVAtoFOA(pFileBuffer, pExportDirectory->Name) + (DWORD)pFileBuffer;
+	strcpy((PCHAR)dstNameStr, (PCHAR)tempAddr);
+	//先把名字地址更新
+	pExportDirectory->Name = dstNameStr - lastSection + (pSectionHeader + index - 1)->VirtualAddress;
+	
+	//移动导出表到新的地址
+	dstNameStr += strlen((PCHAR)tempAddr) + 1;
+	memcpy((LPVOID)dstNameStr, (LPVOID)pExportDirectory, sizeof(IMAGE_EXPORT_DIRECTORY));
 
+	pExportDirectory = (PIMAGE_EXPORT_DIRECTORY)dstNameStr;
 	//修复导出表，需要使用的是RVA
 	tempAddr = (pSectionHeader + index - 1)->VirtualAddress;
 	pExportDirectory->AddressOfFunctions = tempAddr;
 	pExportDirectory->AddressOfNameOrdinals = tempAddr + pExportDirectory->NumberOfFunctions * 4;
 	pExportDirectory->AddressOfNames = tempAddr + pExportDirectory->NumberOfFunctions * 4 + pExportDirectory->NumberOfNames * 2;
+	//修复文件头
+	pDataDirectory->VirtualAddress = dstNameStr - lastSection + tempAddr;
 
 	return TRUE;
 }
