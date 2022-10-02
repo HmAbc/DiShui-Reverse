@@ -245,7 +245,7 @@ BOOL MoveRelocationTable(IN LPVOID pFileBuffer)
 	memcpy((LPVOID)newRelocation, (LPVOID)pBaseRelocation, sizeOfRelocation);
 
 	//修复重定位表地址，RVA
-	pBaseRelocation->VirtualAddress = (pSectionHeader + pPEHeader->NumberOfSections - 1)->VirtualAddress;
+	pDataDirectory[5].VirtualAddress = (pSectionHeader + pPEHeader->NumberOfSections - 1)->VirtualAddress;
 
 	return TRUE;
 }
