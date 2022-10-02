@@ -73,7 +73,7 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	PIMAGE_FILE_HEADER pPEHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
 	PIMAGE_DATA_DIRECTORY pImageData = NULL;
-	PIMAGE_BASE_RELOCATION pImageRelocation = NULL;
+	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
 	PSHORT relocationAddr = 0;
 	DWORD relocationSize = 0;
 	DWORD numberOfItem = 0;
@@ -91,31 +91,31 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 
 	pImageData = pOptionHeader->DataDirectory;
-	pImageRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pImageData[5].VirtualAddress) + (DWORD)pFileBuffer);
+	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pImageData[5].VirtualAddress) + (DWORD)pFileBuffer);
 
-	if (!pImageRelocation)
+	if (!pBaseRelocation)
 	{
 		printf("(PrintRelocationTable)没有找到重定位表\n");
 		return 0;
 	}
 
-	//relocationAddr = RVAtoFOA(pFileBuffer, pImageRelocation->VirtualAddress);
-	while (pImageRelocation->VirtualAddress && pImageRelocation->SizeOfBlock)
+	//relocationAddr = RVAtoFOA(pFileBuffer, pBaseRelocation->VirtualAddress);
+	while (pBaseRelocation->VirtualAddress && pBaseRelocation->SizeOfBlock)
 	{
-		relocationAddr = (PSHORT)((DWORD)pImageRelocation + 8);
-		relocationSize = pImageRelocation->SizeOfBlock;
+		relocationAddr = (PSHORT)((DWORD)pBaseRelocation + 8);
+		relocationSize = pBaseRelocation->SizeOfBlock;
 		
 		printf("**********************************\n");
-		printf("RVA: %#x\n", pImageRelocation->VirtualAddress);
+		printf("RVA: %#x\n", pBaseRelocation->VirtualAddress);
 		numberOfItem = (relocationSize - 8) / 2;
 		printf("%d\n", numberOfItem);
 		for (size_t i = 0; i < numberOfItem; i++)
 		{
 			tempAddr = relocationAddr[i];
-			printf("第 %d 个地址：%#x	属性：%d\n", i + 1, (tempAddr & 0xFFF) + pImageRelocation->VirtualAddress, (tempAddr >> 12) & 0xF);
+			printf("第 %d 个地址：%#x	属性：%d\n", i + 1, (tempAddr & 0xFFF) + pBaseRelocation->VirtualAddress, (tempAddr >> 12) & 0xF);
 		}
 
-		pImageRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pImageRelocation + relocationSize);
+		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + relocationSize);
 	}
 
 	return 0;
@@ -207,9 +207,11 @@ BOOL MoveRelocationTable(IN LPVOID pFileBuffer)
 	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
 	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
 	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
+	PIMAGE_BASE_RELOCATION pBaseRelocationTemp = NULL;
 	DWORD index = 0;
 	DWORD newRelocation = 0;		//新重定位表起始，就是最后一节在内存的实际地址
 	DWORD tempAddr = 0;
+	DWORD sizeOfRelocation = 0;		//重定位表的大小（所有）
 
 	if (!pFileBuffer)
 	{
@@ -225,19 +227,25 @@ BOOL MoveRelocationTable(IN LPVOID pFileBuffer)
 
 	pDataDirectory = pOptionHeader->DataDirectory;
 	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pDataDirectory[5].VirtualAddress) + (DWORD)pFileBuffer);
-	
-	index = pPEHeader->NumberOfSections;
-	newRelocation = (pSectionHeader + index - 1)->PointerToRawData + (DWORD)pFileBuffer;
+	pBaseRelocationTemp = pBaseRelocation;
 
-	while (pBaseRelocation->VirtualAddress && pBaseRelocation->SizeOfBlock)
+	if (!pBaseRelocation)
 	{
-		memcpy((LPVOID)newRelocation, (LPVOID)pBaseRelocation, pBaseRelocation->SizeOfBlock);
-		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
-		newRelocation += pBaseRelocation->SizeOfBlock;
+		printf("(PrintRelocationTable)没有找到重定位表\n");
+		return 0;
 	}
 
+	while (pBaseRelocationTemp->VirtualAddress && pBaseRelocationTemp->SizeOfBlock)
+	{
+		sizeOfRelocation += pBaseRelocationTemp->SizeOfBlock;
+		pBaseRelocationTemp = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocationTemp + pBaseRelocationTemp->SizeOfBlock);
+	}
+
+	newRelocation = (pSectionHeader + pPEHeader->NumberOfSections - 1)->PointerToRawData + (DWORD)pFileBuffer;
+	memcpy((LPVOID)newRelocation, (LPVOID)pBaseRelocation, sizeOfRelocation);
+
 	//修复重定位表地址，RVA
-	pBaseRelocation->VirtualAddress = (pSectionHeader + index - 1)->VirtualAddress;
+	pBaseRelocation->VirtualAddress = (pSectionHeader + pPEHeader->NumberOfSections - 1)->VirtualAddress;
 
 	return TRUE;
 }

@@ -521,7 +521,78 @@ BOOL TestMoveExportTable()
 	free(pFileBuffer);
 	free(pNewFileBuffer);
 	return TRUE;
+}
 
+BOOL TestMoveRelocationTable()
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
+	PIMAGE_BASE_RELOCATION pBaseRelocationTemp = NULL;
+	LPVOID pFileBuffer = NULL;
+	LPVOID pNewFileBuffer = NULL;
+	CHAR name[8] = "NewSec";
+	DWORD sizeOfRelocation = 0;
+	DWORD fileSize = 0;
+	DWORD addSize = 0;
+	BOOL isOK = FALSE;
+
+	fileSize = ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(TestMoveRelocationTable)文件读取失败\n");
+		return FALSE;
+	}
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, (pOptionHeader->DataDirectory[5]).VirtualAddress) + (DWORD)pFileBuffer);
+	//printf("%#x\n", RVAtoFOA(pFileBuffer, (pOptionHeader->DataDirectory[5]).VirtualAddress));
+
+	while (pBaseRelocation->VirtualAddress && pBaseRelocation->SizeOfBlock)
+	{
+		sizeOfRelocation += pBaseRelocation->SizeOfBlock;
+		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
+	}
+
+	addSize = ceil(sizeOfRelocation / (FLOAT)0x1000) * 0x1000;
+	printf("重定位表大小：%#x，需要新增节的大小：%#x\n", sizeOfRelocation, addSize);
+
+	isOK = MoveHeader(pFileBuffer);
+	if (!isOK)
+	{
+		printf("(TestMoveExportTable)移动头文件失败\n");
+		free(pFileBuffer);
+		return FALSE;
+	}
+	isOK = FALSE;
+
+	AddNewSection(pFileBuffer, &pNewFileBuffer, fileSize, addSize, name);
+	if (!pNewFileBuffer)
+	{
+		printf("(TestMoveRelocationTable)新增节失败\n");
+		free(pFileBuffer);
+		return FALSE;
+	}
+
+	isOK = MoveRelocationTable(pNewFileBuffer);
+	if (!isOK)
+	{
+		printf("(TestMoveRelocationTable)移动重定位表失败\n");
+		free(pFileBuffer);
+		free(pNewFileBuffer);
+		return FALSE;
+	}
+
+	MemoryToFile(pNewFileBuffer, fileSize + addSize, FILEPATH_OUT);
+	printf("(TestMoveRelocationTable)移动重定位表成功\n");
+	free(pFileBuffer);
+	free(pNewFileBuffer);
+	return TRUE;
 
 }
 
@@ -545,7 +616,9 @@ int main()
 
 	//PrintRelocation();
 
-	TestMoveExportTable();
+	//TestMoveExportTable();
+
+	TestMoveRelocationTable();
 
 	return 0;
 }
