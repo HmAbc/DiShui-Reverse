@@ -21,3 +21,9 @@ BOOL MoveExportTable(IN LPVOID pFileBuffer);
 /// @return 成功返回TRUE
 BOOL MoveRelocationTable(IN LPVOID pFileBuffer);
 
+/// @brief 修复重定位表，主要用于当DLL的OEP改变后，重定位表失效的修复
+/// @param pFileBuffer 文件在内存的地址
+/// @param originOEP 原来的入口地址
+/// @param newOEP 新的入口地址
+/// @return 成功返回TRUE
+BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN DWORD originImageBase);

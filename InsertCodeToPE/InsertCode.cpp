@@ -593,7 +593,20 @@ BOOL TestMoveRelocationTable()
 	free(pFileBuffer);
 	free(pNewFileBuffer);
 	return TRUE;
+}
 
+BOOL TestRepairRelocationTable()
+{
+	LPVOID pFileBuffer = NULL;
+
+	ReadPEFile("d:/MyDLL_new.dll", &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(TestRepairRelocationTable)ÎÄ¼þ¶ÁÈ¡Ê§°Ü\n");
+		return FALSE;
+	}
+
+	RepairRelocationTable(pFileBuffer, 0x10000000);
 }
 
 int main()
