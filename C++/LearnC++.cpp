@@ -1,52 +1,101 @@
-#include <iostream>
-using namespace std;
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
 
-struct Base
+struct MyString
 {
-	int x;
-	int y;
+	char* str = NULL;
 
-	int Plus()
+	MyString()
 	{
-		return this->x + this->y;
+		str = (char*)malloc(1024);
 	}
-	int Sub()
+	MyString(char* st)
 	{
-		return this->x + this->y;
+		int len = strlen(st) + 1;
+		this->str = (char*)malloc(len);
+		if (this->str)
+		{
+			strcpy(this->str, st);
+		}
 	}
-	int Mul()
+
+	int Size()
 	{
-		return this->x + this->y;
+		if (this->str)
+		{
+			return strlen(this->str);
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	int Div()
+
+	void SetString(char* newStr)
 	{
-		return this->x + this->y;
+		if (this->str)
+		{
+			int len = strlen(newStr) + 1;
+			char* temp = (char*)realloc(this->str, len);
+			if (temp)
+			{
+				this->str = temp;
+				strcpy(this->str, newStr);
+			}
+		}
+		else
+		{
+			printf("StrÎ´³õÊ¼»¯\n");
+		}
+	}
+
+	void PrintString()
+	{
+		if (this->str)
+		{
+			printf("str: %s\n", this->str);
+		}
+	}
+
+	void AppendString(char* newStr)
+	{
+		if (this->str)
+		{
+		
+		}
+	}
+
+	~MyString()
+	{
+		free(str);
 	}
 
 };
-
-struct Person
-{
-	int x;
-	void Fn_1()
-	{
-		printf("Person:Fn_1()\n");
-	}
-
-	void Fn_2()
-	{
-		printf("Person:Fn_2()\n");
-	}
-};
-
 
 
 int main()
 {
-	Base base;
-	base.x = 2;
-	base.y = 1;
-	base.Plus();
+	char* str = (char*)malloc(sizeof(char)*100);
+	char a[] = "helloworld";
+	if (str)
+	{
+		int len = strlen(str);
+		memcpy(str, a, strlen(a));
+		printf("%d\n", len);
+		printf("%s\n", str);
+		char* temp = (char*)realloc(str, 30);
+		if (temp)
+		{
+			str = temp;
+			len = strlen(str);
+			printf("%d\n", len);
+			printf("%s\n", str);
+			free(str);
+		}
+		
+	}
 
 	return 0;
 }
