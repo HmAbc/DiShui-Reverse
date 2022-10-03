@@ -100,7 +100,7 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	}
 
 	//relocationAddr = RVAtoFOA(pFileBuffer, pBaseRelocation->VirtualAddress);
-	while (pBaseRelocation->VirtualAddress && pBaseRelocation->SizeOfBlock)
+	while (pBaseRelocation->VirtualAddress)
 	{
 		relocationAddr = (PSHORT)((DWORD)pBaseRelocation + 8);
 		relocationSize = pBaseRelocation->SizeOfBlock;
@@ -271,11 +271,9 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 	PSHORT pBaseRelocationTemp = NULL;
 	LONG newImageBase = 0;
 	LONG diff = 0;
-	DWORD newRelocation = 0;		//新重定位表起始，就是最后一节在内存的实际地址
 	DWORD tempAddr = 0;
 	DWORD numOfAddr = 0;
 	DWORD tempNumber = 0;
-	DWORD sizeOfRelocation = 0;		//重定位表的大小（所有）
 
 	if (!pFileBuffer)
 	{
@@ -296,7 +294,7 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 	while (pBaseRelocation->VirtualAddress)
 	{
 		tempAddr = RVAtoFOA(pFileBuffer, pBaseRelocation->VirtualAddress) + (DWORD)pFileBuffer;
-		pBaseRelocationTemp = (PSHORT)(tempAddr + 8);
+		pBaseRelocationTemp = (PSHORT)((DWORD)pBaseRelocation + 8);
 		numOfAddr = (pBaseRelocation->SizeOfBlock - 8) / 2;
 		for (DWORD i = 0; i < numOfAddr; i++)
 		{
@@ -304,7 +302,7 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 			if ((pBaseRelocationTemp[i] & 0x3000) == 0x3000)
 			{
 				tempNumber = pBaseRelocationTemp[i] & 0xFFF;
-				*((PDWORD)(tempNumber + tempAddr)) += diff;
+				*(PLONG)(tempNumber + tempAddr) += diff;
 			}
 		}
 		pBaseRelocation = (PIMAGE_BASE_RELOCATION)((DWORD)pBaseRelocation + pBaseRelocation->SizeOfBlock);
