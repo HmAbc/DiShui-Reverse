@@ -194,6 +194,7 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 	PIMAGE_OPTIONAL_HEADER32 pOptionHeader = NULL;
 	PIMAGE_SECTION_HEADER pSectionHeader = NULL;
 	DWORD dwFOA = 0;
+	DWORD maxSize = 0;
 
 	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
 	pNtHeader = (PIMAGE_NT_HEADERS32)((DWORD)pFileBuffer + pDosHeader->e_lfanew);
@@ -201,19 +202,23 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER32)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pOptionHeader + pPEHeader->SizeOfOptionalHeader);
 
-	if (dwRVA <= pOptionHeader->SizeOfHeaders)
+	if (dwRVA < pOptionHeader->SizeOfHeaders)
 	{
 		return dwRVA;
 	}
-	else
+
+	for (DWORD i = 0; i < pPEHeader->NumberOfSections; i++)
 	{
-		for (DWORD i = 0; i < pPEHeader->NumberOfSections; i++)
+		maxSize = pSectionHeader[i].Misc.VirtualSize > pSectionHeader[i].SizeOfRawData ? pSectionHeader[i].Misc.VirtualSize : pSectionHeader[i].SizeOfRawData;
+		if (pSectionHeader[i].VirtualAddress + maxSize > dwRVA)
 		{
-			if (pSectionHeader[i].VirtualAddress + pSectionHeader[i].SizeOfRawData >= dwRVA)
-			{
-				dwFOA = dwRVA - pSectionHeader[i].VirtualAddress + pSectionHeader[i].PointerToRawData;
-				return dwFOA;
-			}
+			dwFOA = dwRVA - pSectionHeader[i].VirtualAddress + pSectionHeader[i].PointerToRawData;
+			return dwFOA;
+		}
+		else
+		{
+			printf("(RVAtoFOA)RVA超出文件大小\n");
+			return 0;
 		}
 	}
 	return 0;

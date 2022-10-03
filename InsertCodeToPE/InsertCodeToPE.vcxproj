@@ -131,7 +131,6 @@
     <ClInclude Include="TableOperate.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\MyDLL\dllmain.cpp" />
     <ClCompile Include="Global.cpp" />
     <ClCompile Include="InsertCode.cpp" />
     <ClCompile Include="TableOperate.cpp" />
