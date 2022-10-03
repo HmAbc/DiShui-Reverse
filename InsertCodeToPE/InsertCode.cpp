@@ -5,8 +5,8 @@
 
 //#define FILEPATH_IN "d:/notepad.exe"
 #define FILEPATH_IN "d:/MyDLL.dll"
-//#define FILEPATH_OUT "d:/notepad_new.exe"
-#define FILEPATH_OUT "d:/MyDLL_new.dll"
+#define FILEPATH_OUT "d:/notepad_new.exe"
+//#define FILEPATH_OUT "d:/MyDLL_new.dll"
 #define MESSAGEBOXADDR 0x766C3B90
 
 BYTE SHELLCODE[] =
@@ -623,6 +623,24 @@ BOOL TestRepairRelocationTable()
 	return 0;
 }
 
+BOOL TestPrintIAT()
+{
+	LPVOID pFileBuffer = NULL;
+	DWORD fileSize = 0;
+	BOOL isOK = 0;
+
+	fileSize = ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(TestPrintIAT)ÎÄ¼þ¶ÁÈ¡Ê§°Ü\n");
+		return 0;
+	}
+
+	PrintIAT(pFileBuffer);
+	free(pFileBuffer);
+	return TRUE;
+}
+
 int main()
 {
 	//InsertCodeToFirstSection();
@@ -647,7 +665,9 @@ int main()
 
 	//TestMoveRelocationTable();
 
-	TestRepairRelocationTable();
+	//TestRepairRelocationTable();
+
+	TestPrintIAT();
 
 	return 0;
 }

@@ -310,3 +310,75 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 
 	return TRUE;
 }
+
+BOOL PrintIAT(IN LPVOID pFileBuffer)
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
+	PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor = NULL;
+	PDWORD originalFirstThunk = 0;
+	PDWORD firstThunk = 0;
+
+	if (!pFileBuffer)
+	{
+		printf("(MoveRelocationTable)FileBuffer 获取失败\n");
+		return 0;
+	}
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + 4);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + pDosHeader->e_lfanew);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+
+	pDataDirectory = pOptionHeader->DataDirectory;
+	pImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)(RVAtoFOA(pFileBuffer, pDataDirectory[1].VirtualAddress) + (DWORD)pFileBuffer);
+
+	//循环判断导入表是否合法，合法再进行打印
+	while (pImportDescriptor->OriginalFirstThunk)
+	{
+		printf("*******************************************\n");
+		//打印DLL名字，地址转为FOA
+		printf("DLL名：%s\n", (PCHAR)(RVAtoFOA(pFileBuffer, pImportDescriptor->Name) + (DWORD)pFileBuffer));
+		//遍历OriginalFirstThunk，转换为FOA
+		originalFirstThunk = (PDWORD)(RVAtoFOA(pFileBuffer, pImportDescriptor->OriginalFirstThunk) + (DWORD)pFileBuffer);
+		printf("OriginalFirstThunk:\n");
+		while (*originalFirstThunk)
+		{
+			//判断第一位是否为1，如果是，那么除去最高位的值就是函数的导出序号
+			if ((*originalFirstThunk & 0x8000) == 0x8000)
+			{
+				printf("\t函数序号：%d\n", *originalFirstThunk & 0x7FFF);
+			}
+			else
+			{
+				//如果不是，这个值就是一个RVA，指向 IMAGE_IMPORT_BY_NAME
+				//跳过 IMAGE_IMPORT_BY_NAME 结构中的 HINT
+				printf("\t函数名字：%s\n", (PCHAR)(RVAtoFOA(pFileBuffer, *originalFirstThunk + 2) + (DWORD)pFileBuffer));
+			}
+			originalFirstThunk++;
+		}
+		//遍历FirstThunk，转换为FOA
+		firstThunk = (PDWORD)(RVAtoFOA(pFileBuffer, pImportDescriptor->FirstThunk) + (DWORD)pFileBuffer);
+		printf("FirstThunk:\n");
+		while (*firstThunk)
+		{
+			//判断第一位是否为1，如果是，那么除去最高位的值就是函数的导出序号
+			if ((*firstThunk & 0x8000) == 0x8000)
+			{
+				printf("\t函数序号：%d\n", *firstThunk & 0x7FFF);
+			}
+			else
+			{
+				//如果不是，这个值就是一个RVA，指向 IMAGE_IMPORT_BY_NAME
+				//跳过 IMAGE_IMPORT_BY_NAME 结构中的 HINT
+				printf("\t函数名字：%s\n", (PCHAR)(RVAtoFOA(pFileBuffer, *firstThunk + 2) + (DWORD)pFileBuffer));
+			}
+			firstThunk++;
+		}
+		pImportDescriptor++;
+	}
+	return TRUE;
+}
