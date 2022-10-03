@@ -311,7 +311,7 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 	return TRUE;
 }
 
-BOOL PrintIAT(IN LPVOID pFileBuffer)
+BOOL PrintImportTable(IN LPVOID pFileBuffer)
 {
 	PIMAGE_DOS_HEADER pDosHeader = NULL;
 	PIMAGE_NT_HEADERS pNtHeader = NULL;
@@ -319,6 +319,7 @@ BOOL PrintIAT(IN LPVOID pFileBuffer)
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
 	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
 	PIMAGE_IMPORT_DESCRIPTOR pImportDescriptor = NULL;
+	PIMAGE_IMPORT_BY_NAME pImportByName = NULL;
 	PDWORD originalFirstThunk = 0;
 	PDWORD firstThunk = 0;
 
@@ -348,36 +349,46 @@ BOOL PrintIAT(IN LPVOID pFileBuffer)
 		while (*originalFirstThunk)
 		{
 			//判断第一位是否为1，如果是，那么除去最高位的值就是函数的导出序号
-			if ((*originalFirstThunk & 0x8000) == 0x8000)
+			if (*originalFirstThunk & IMAGE_ORDINAL_FLAG)	//IMAGE_ORDINAL_FLAG = 0x80000000
 			{
-				printf("\t函数序号：%d\n", *originalFirstThunk & 0x7FFF);
+				printf("\t按序号导入：%d\n", *originalFirstThunk & 0x7FFFFFFF);
 			}
 			else
 			{
 				//如果不是，这个值就是一个RVA，指向 IMAGE_IMPORT_BY_NAME
-				//跳过 IMAGE_IMPORT_BY_NAME 结构中的 HINT
-				printf("\t函数名字：%s\n", (PCHAR)(RVAtoFOA(pFileBuffer, *originalFirstThunk + 2) + (DWORD)pFileBuffer));
+				pImportByName = (PIMAGE_IMPORT_BY_NAME)(RVAtoFOA(pFileBuffer, *originalFirstThunk) + (DWORD)pFileBuffer);
+				printf("\t按名字导入：HINT %#x\t%s\n", pImportByName->Hint, pImportByName->Name);
 			}
 			originalFirstThunk++;
 		}
-		//遍历FirstThunk，转换为FOA
-		firstThunk = (PDWORD)(RVAtoFOA(pFileBuffer, pImportDescriptor->FirstThunk) + (DWORD)pFileBuffer);
-		printf("FirstThunk:\n");
-		while (*firstThunk)
+		//判断 pImportDescriptor->TimeDateStamp 的值，当它为0时表示未绑定导入表，originalFirstThunk表和FirstThunk表内容一样
+		//当它为-1时，表示绑定了导入表，FirstThunk中记录的是地址值
+		if (!pImportDescriptor->TimeDateStamp)
 		{
-			//判断第一位是否为1，如果是，那么除去最高位的值就是函数的导出序号
-			if ((*firstThunk & 0x8000) == 0x8000)
+			//遍历FirstThunk，转换为FOA
+			firstThunk = (PDWORD)(RVAtoFOA(pFileBuffer, pImportDescriptor->FirstThunk) + (DWORD)pFileBuffer);
+			printf("FirstThunk:\n");
+			while (*firstThunk)
 			{
-				printf("\t函数序号：%d\n", *firstThunk & 0x7FFF);
+				//判断第一位是否为1，如果是，那么除去最高位的值就是函数的导出序号
+				if (*firstThunk & IMAGE_ORDINAL_FLAG)
+				{
+					printf("\t按序号导入：%d\n", *firstThunk & 0x7FFFFFFF);
+				}
+				else
+				{
+					//如果不是，这个值就是一个RVA，指向 IMAGE_IMPORT_BY_NAME
+					pImportByName = (PIMAGE_IMPORT_BY_NAME)(RVAtoFOA(pFileBuffer, *firstThunk) + (DWORD)pFileBuffer);
+					printf("\t按名字导入：HINT %#x\t%s\n", pImportByName->Hint, pImportByName->Name);
+				}
+				firstThunk++;
 			}
-			else
-			{
-				//如果不是，这个值就是一个RVA，指向 IMAGE_IMPORT_BY_NAME
-				//跳过 IMAGE_IMPORT_BY_NAME 结构中的 HINT
-				printf("\t函数名字：%s\n", (PCHAR)(RVAtoFOA(pFileBuffer, *firstThunk + 2) + (DWORD)pFileBuffer));
-			}
-			firstThunk++;
 		}
+		else
+		{
+			printf("绑定了导入地址表，FirstThunk表中是地址信息\n");
+		}
+		
 		pImportDescriptor++;
 	}
 	return TRUE;

@@ -3,8 +3,8 @@
 #include "TableOperate.h"
 
 
-//#define FILEPATH_IN "d:/notepad.exe"
-#define FILEPATH_IN "d:/MyDLL.dll"
+#define FILEPATH_IN "d:/notepad.exe"
+//#define FILEPATH_IN "d:/MyDLL.dll"
 #define FILEPATH_OUT "d:/notepad_new.exe"
 //#define FILEPATH_OUT "d:/MyDLL_new.dll"
 #define MESSAGEBOXADDR 0x766C3B90
@@ -623,7 +623,7 @@ BOOL TestRepairRelocationTable()
 	return 0;
 }
 
-BOOL TestPrintIAT()
+BOOL TestPrintImportTable()
 {
 	LPVOID pFileBuffer = NULL;
 	DWORD fileSize = 0;
@@ -636,7 +636,7 @@ BOOL TestPrintIAT()
 		return 0;
 	}
 
-	PrintIAT(pFileBuffer);
+	PrintImportTable(pFileBuffer);
 	free(pFileBuffer);
 	return TRUE;
 }
@@ -667,7 +667,7 @@ int main()
 
 	//TestRepairRelocationTable();
 
-	TestPrintIAT();
+	TestPrintImportTable();
 
 	return 0;
 }
