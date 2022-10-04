@@ -8,7 +8,7 @@ struct MyString
 {
 	char* str = NULL;
 	int size = 0;
-	int len;
+	int stringLen = 0;
 
 	MyString()
 	{
@@ -16,7 +16,7 @@ struct MyString
 		if (this->str)
 		{
 			memset(this->str, 0, 1024);
-			this->len = 1024;
+			this->size = 1024;
 		}
 		else
 		{
@@ -31,30 +31,34 @@ struct MyString
 		{
 			strcpy(this->str, st);
 			this->size = len;
+			this->stringLen = len;
 		}
 	}
 
 	int Size()
 	{
-		return this->size;
+		return this->stringLen;
 	}
 
 	void SetString(const char* newStr)
 	{
 		if (this->str)
 		{
-			int len = strlen(newStr);
-			if (this->Size() > len)
+			int len = strlen(newStr) + 1;
+			if (this->size >= len)
 			{
 				strcpy(this->str, newStr);
+				this->stringLen = len;
 			}
 			else
 			{
-				char* temp = (char*)realloc(this->str, len + 1);
+				char* temp = (char*)realloc(this->str, len);
 				if (temp)
 				{
 					this->str = temp;
 					strcpy(this->str, newStr);
+					this->size = len;
+					this->stringLen = len;
 				}
 			}
 		}
@@ -76,17 +80,20 @@ struct MyString
 	{
 		if (this->str)
 		{
-			if (this->Size() > strlen(newStr) + strlen(this->str))
+			if (this->size >= strlen(newStr) + this->stringLen)
 			{
 				strcat(this->str, newStr);
+				this->stringLen = strlen(newStr) + this->stringLen;
 			}
 			else
 			{
-				char* temp = (char*)realloc(this->str, strlen(this->str) + strlen(newStr) + 1);
+				char* temp = (char*)realloc(this->str, this->stringLen + strlen(newStr));
 				if (temp)
 				{
 					this->str = temp;
 					strcat(this->str, newStr);
+					this->size = this->stringLen + strlen(newStr);
+					this->stringLen = this->stringLen + strlen(newStr);
 				}
 			}
 		}
@@ -103,13 +110,23 @@ struct MyString
 
 };
 
-
-int main()
+void TestMyString()
 {
 	MyString myString;
 	printf("%d\n", myString.Size());
 	myString.SetString("helloworld");
 	printf("%d\n", myString.Size());
+
+	myString.AppendString(".com");
+	myString.PrintString();
+
+	printf("%d\n", myString.Size());
+}
+
+
+int main()
+{
+	
 
 	return 0;
 }
