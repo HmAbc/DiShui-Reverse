@@ -129,9 +129,11 @@
   <ItemGroup>
     <ClCompile Include="BaseClass.cpp" />
     <ClCompile Include="LearnC++.cpp" />
+    <ClCompile Include="VectorImplement.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseClass.h" />
+    <ClInclude Include="VectorImplement.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

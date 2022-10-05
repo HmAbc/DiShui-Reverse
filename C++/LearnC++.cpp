@@ -1,5 +1,6 @@
 #include "BaseClass.h"
 #include <iostream>
+#include "VectorImplement.h"
 
 template<class T>
 struct Base
@@ -106,6 +107,21 @@ void TestFrendOperatorReload()
     printf("fo1 == fo2 : %d\n", flag);
 }
 
+void TestVector()
+{
+    Vector<Base<int>>* pVector = new Vector<Base<int>>[5];
+    Base<int> base1(1, 2);
+    Base<int> base2(3, 4);
+    Base<int> base3(5, 6);
+    Base<int> base4(7, 8);
+
+    pVector->push_back(base1);
+    pVector->push_back(base2);
+    pVector->push_back(base3);
+    pVector->push_back(base4);
+
+}
+
 int main()
 {
 	//TestMyString();
@@ -114,7 +130,9 @@ int main()
 
     //TestTemplateOperatorReload();
 
-    TestFrendOperatorReload();
+    //TestFrendOperatorReload();
+
+    TestVector();
 
 	return 0;
 }
