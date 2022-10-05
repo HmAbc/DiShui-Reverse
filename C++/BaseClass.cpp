@@ -97,3 +97,55 @@ MyString::~MyString()
 {
 	free(str);
 }
+
+//使用友元函数重载运算符
+FrendOperator operator+(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	FrendOperator fo;
+	fo.x = fo1.x + fo2.x;
+	return fo;
+
+}
+
+FrendOperator operator-(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	FrendOperator fo;
+	fo.x = fo1.x - fo2.x;
+	return fo;
+}
+FrendOperator operator*(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	FrendOperator fo;
+	fo.x = fo1.x * fo2.x;
+	return fo;
+}
+
+FrendOperator operator/(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	FrendOperator fo;
+	if (fo2.x)
+	{
+		fo.x = fo1.x / fo2.x;
+		return fo;
+	}
+	else
+	{
+		return NULL;
+	}
+	
+}
+
+bool operator>(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	return fo1.x > fo2.x;
+}
+
+bool operator<(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	return fo1.x < fo2.x;
+}
+
+bool operator==(const FrendOperator& fo1, const FrendOperator& fo2)
+{
+	return fo1.x == fo2.x;
+}

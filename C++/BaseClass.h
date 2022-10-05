@@ -21,3 +21,26 @@ public:
 	void AppendString(const char* newStr);
 	~MyString();
 };
+
+//使用友元函数重载运算符
+class FrendOperator
+{
+public:
+    double x;
+    FrendOperator() 
+    {
+        x = 0;
+    }
+    FrendOperator(double x)
+    {
+        this->x = x;
+    }
+
+    friend FrendOperator operator+(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend FrendOperator operator-(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend FrendOperator operator*(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend FrendOperator operator/(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend bool operator>(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend bool operator<(const FrendOperator& fo1, const FrendOperator& fo2);
+    friend bool operator==(const FrendOperator& fo1, const FrendOperator& fo2);
+};
