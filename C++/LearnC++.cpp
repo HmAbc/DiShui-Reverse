@@ -107,18 +107,33 @@ void TestFrendOperatorReload()
     printf("fo1 == fo2 : %d\n", flag);
 }
 
+struct Person
+{
+    int x;
+    int y;
+    Person()
+    {
+        x = 5;
+        y = 5;
+    }
+    Person(int x, int y)
+    {
+        this->x = x;
+        this->y = y;
+    }
+};
+
 void TestVector()
 {
-    Vector<Base<int>>* pVector = new Vector<Base<int>>[5];
-    Base<int> base1(1, 2);
-    Base<int> base2(3, 4);
-    Base<int> base3(5, 6);
-    Base<int> base4(7, 8);
+    Vector<Person>* pVector = new Vector<Person>(5);
+    Person p1(1, 2);
+    Person p2(3, 4);
+    Person p3(5, 6);
 
-    pVector->push_back(base1);
-    pVector->push_back(base2);
-    pVector->push_back(base3);
-    pVector->push_back(base4);
+    pVector->push_back(p1);
+    pVector->push_back(p2);
+    pVector->insert(2, p3);
+
 
 }
 
