@@ -67,14 +67,17 @@ template<class T_ELE> void LinkedList<T_ELE>::Clear()
 		return;
 	}
 	// 2. 循环删除链表中的节点		
-	PNODE pPreviousNode = m_pList, pCurrentNode = m_pList;
+	PNODE pPreviousNode = NULL, pCurrentNode = m_pList;
 	while (pCurrentNode->pNext)
 	{
+		pPreviousNode = pCurrentNode;
 		pCurrentNode = pCurrentNode->pNext;
-
+		delete pPreviousNode;
 	}
 	// 3. 删除最后一个节点并将链表长度置为0										
-
+	delete pCurrentNode;
+	m_pList = NULL;
+	m_dwLength = 0;
 }
 //根据索引获取元素											
 template<class T_ELE> DWORD LinkedList<T_ELE>::GetElement(IN DWORD dwIndex, OUT T_ELE& Element)
@@ -234,7 +237,7 @@ template<class T_ELE> DWORD LinkedList<T_ELE>::GetSize()
 }
 //获取dwIndex前面节点的地址											
 template<class T_ELE>
-LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexPreviousNode(DWORD dwIndex)
+typename LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexPreviousNode(DWORD dwIndex)
 {
 	// 就是一个循环										
 	PNODE pTempNode = m_pList;
@@ -246,7 +249,7 @@ LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexPreviousNode(DWORD dwIndex)
 }
 //获取dwIndex节点的地址											
 template<class T_ELE>
-LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexCurrentNode(DWORD dwIndex)
+typename LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexCurrentNode(DWORD dwIndex)
 {
 	// 就是一个循环										
 	PNODE pTempNode = m_pList;
@@ -258,7 +261,7 @@ LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexCurrentNode(DWORD dwIndex)
 }
 //获取dwIndex后面节点的地址											
 template<class T_ELE>
-LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexNextNode(DWORD dwIndex)
+typename LinkedList<T_ELE>::PNODE LinkedList<T_ELE>::GetIndexNextNode(DWORD dwIndex)
 {
 	// 就是一个循环										
 	PNODE pTempNode = m_pList;

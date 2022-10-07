@@ -1,6 +1,7 @@
 #include "BaseClass.h"
 #include <iostream>
 #include "VectorImplement.h"
+#include "LinkListTemplate.h"
 
 template<class T>
 struct Base
@@ -134,7 +135,51 @@ void TestVector()
     pVector->push_back(p2);
     pVector->insert(2, p3);
 
+    pVector->clear();
+}
 
+void TestLinkedList()
+{
+    bool isEmpty = 0;
+    int isOk = 0;
+    int temp = 0;
+    LinkedList<int>* pLinkedList = new LinkedList<int>;
+
+    pLinkedList->Insert(3);
+    pLinkedList->Insert(2);
+    pLinkedList->Insert(4);
+    pLinkedList->Insert(5);
+
+    pLinkedList->Insert(0, 10);
+    pLinkedList->Insert(2, 14);
+    isOk = pLinkedList->Insert(9, 14);
+    printf("插入结果：%d\n", isOk);
+
+    isEmpty = pLinkedList->IsEmpty();
+    printf("链表为空：%d\n", isEmpty);
+
+    printf("链表中元素个数：%d\n", pLinkedList->GetSize());
+    for (int i = 0; i < pLinkedList->GetSize(); i++)
+    {
+        pLinkedList->GetElement(i, temp);
+        printf("第 %d 个元素为 %d\n", i + 1, temp);
+    }
+
+    pLinkedList->Delete(0);
+    pLinkedList->Delete(3);
+    isOk = pLinkedList->Delete(9);
+    printf("删除结果：%d\n", isOk);
+
+    printf("链表中元素个数：%d\n", pLinkedList->GetSize());
+    for (int i = 0; i < pLinkedList->GetSize(); i++)
+    {
+        pLinkedList->GetElement(i, temp);
+        printf("第 %d 个元素为 %d\n", i + 1, temp);
+    }
+
+    pLinkedList->Clear();
+    isEmpty = pLinkedList->IsEmpty();
+    printf("链表为空：%d\n", isEmpty);
 }
 
 int main()
@@ -147,7 +192,9 @@ int main()
 
     //TestFrendOperatorReload();
 
-    TestVector();
+    //TestVector();
+
+    TestLinkedList();
 
 	return 0;
 }
