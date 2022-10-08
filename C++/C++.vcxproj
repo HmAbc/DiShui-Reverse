@@ -133,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseClass.h" />
+    <ClInclude Include="BinaryTreePractice.h" />
     <ClInclude Include="LinkListTemplate.h" />
     <ClInclude Include="VectorImplement.h" />
   </ItemGroup>

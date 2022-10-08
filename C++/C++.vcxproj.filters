@@ -35,5 +35,8 @@
     <ClInclude Include="LinkListTemplate.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="BinaryTreePractice.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

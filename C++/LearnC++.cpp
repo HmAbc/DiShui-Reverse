@@ -2,6 +2,7 @@
 #include <iostream>
 #include "VectorImplement.h"
 #include "LinkListTemplate.h"
+#include "BinaryTreePractice.h"
 
 template<class T>
 struct Base
@@ -182,6 +183,22 @@ void TestLinkedList()
     printf("Á´±íÎª¿Õ£º%d\n", isEmpty);
 }
 
+void TestBinaryTree()
+{
+    BSortTree<Monster>* pBSortTree = new BSortTree<Monster>;
+
+    TreeNode<Monster>* root = pBSortTree->GetRoot();
+
+    int depth = pBSortTree->GetDepth(root);
+    printf("depth = %d\n", depth);
+
+    pBSortTree->InOrderTraverse(root);
+    pBSortTree->PreOrderTraverse(root);
+    pBSortTree->PostOrderTraverse(root);
+
+    pBSortTree->Clear(root);
+}
+
 int main()
 {
 	//TestMyString();
@@ -194,7 +211,9 @@ int main()
 
     //TestVector();
 
-    TestLinkedList();
+    //TestLinkedList();
+
+    TestBinaryTree();
 
 	return 0;
 }
