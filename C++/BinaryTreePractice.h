@@ -59,8 +59,8 @@ BSortTree<T>::BSortTree()
 template<class T>
 BSortTree<T>::~BSortTree()
 {
-	//释放所以节点空间			
-	Clear();
+	//释放所有节点空间			
+	Clear(m_pRoot);
 
 }
 

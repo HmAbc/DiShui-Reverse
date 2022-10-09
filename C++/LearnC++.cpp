@@ -196,7 +196,7 @@ void TestBinaryTree()
     pBSortTree->PreOrderTraverse(root);
     pBSortTree->PostOrderTraverse(root);
 
-    pBSortTree->Clear(root);
+    delete pBSortTree;
 }
 
 int main()
