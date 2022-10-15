@@ -1,4 +1,5 @@
 #include "MyDLL.h"
+#include "pch.h"
 
 void init()
 {
