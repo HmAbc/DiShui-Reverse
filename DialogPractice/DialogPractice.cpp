@@ -13,7 +13,7 @@ BOOL CALLBACK DialogProc(
 	{
 	case  WM_INITDIALOG:
 
-		MessageBox(NULL, TEXT("WM_INITDIALOG"), TEXT("INIT"), MB_OK);
+		//MessageBox(NULL, TEXT("WM_INITDIALOG"), TEXT("INIT"), MB_OK);
 
 		return TRUE;
 
