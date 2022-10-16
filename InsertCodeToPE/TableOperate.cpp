@@ -277,7 +277,7 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase)
 
 	if (!pFileBuffer)
 	{
-		printf("(MoveRelocationTable)FileBuffer 获取失败\n");
+		printf("(RepairRelocationTable)FileBuffer 获取失败\n");
 		return 0;
 	}
 
@@ -325,7 +325,7 @@ BOOL PrintImportTable(IN LPVOID pFileBuffer)
 
 	if (!pFileBuffer)
 	{
-		printf("(MoveRelocationTable)FileBuffer 获取失败\n");
+		printf("(PrintImportTable)FileBuffer 获取失败\n");
 		return 0;
 	}
 
@@ -392,4 +392,35 @@ BOOL PrintImportTable(IN LPVOID pFileBuffer)
 		pImportDescriptor++;
 	}
 	return TRUE;
+}
+
+BOOL PrintResourceTable(IN LPVOID pFileBuffer)
+{
+	PIMAGE_DOS_HEADER pDosHeader = NULL;
+	PIMAGE_NT_HEADERS pNtHeader = NULL;
+	PIMAGE_FILE_HEADER pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
+	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
+	PIMAGE_RESOURCE_DIRECTORY pResourceDir = NULL;
+	PIMAGE_RESOURCE_DIRECTORY_ENTRY pResourceDirEntry = NULL;
+
+	if (!pFileBuffer)
+	{
+		printf("(PrintResourceTable)FileBuffer 获取失败\n");
+		return 0;
+	}
+
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	pNtHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer + 4);
+	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + pDosHeader->e_lfanew);
+	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
+
+	pDataDirectory = pOptionHeader->DataDirectory;
+	pResourceDir = (PIMAGE_RESOURCE_DIRECTORY)(pDataDirectory[2].VirtualAddress);
+
+	for (DWORD i = 0; i < pResourceDir->NumberOfIdEntries + pResourceDir->NumberOfNamedEntries; i++)
+	{
+		pResourceDirEntry = pResourceDir + 16;
+	}
+
 }

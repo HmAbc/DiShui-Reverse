@@ -32,3 +32,8 @@ BOOL RepairRelocationTable(IN LPVOID pFileBuffer, IN LONG originImageBase);
 /// @param pFileBuffer 文件在内存的地址
 /// @return 成功返回TRUE
 BOOL PrintImportTable(IN LPVOID pFileBuffer);
+
+/// @brief 打印PE文件资源表
+/// @param pFileBuffer 文件在内存的地址
+/// @return 成功返回TRUE
+BOOL PrintResourceTable(IN LPVOID pFileBuffer);
