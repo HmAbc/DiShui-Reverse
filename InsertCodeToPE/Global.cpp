@@ -215,12 +215,9 @@ DWORD RVAtoFOA(IN LPVOID pFileBuffer, IN DWORD dwRVA)
 			dwFOA = dwRVA - pSectionHeader[i].VirtualAddress + pSectionHeader[i].PointerToRawData;
 			return dwFOA;
 		}
-		else
-		{
-			printf("(RVAtoFOA)RVA超出文件大小\n");
-			return 0;
-		}
 	}
+
+	printf("(RVAtoFOA)RVA超出文件大小\n");
 	return 0;
 }
 

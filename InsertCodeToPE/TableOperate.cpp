@@ -402,7 +402,15 @@ BOOL PrintResourceTable(IN LPVOID pFileBuffer)
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
 	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
 	PIMAGE_RESOURCE_DIRECTORY pResourceDir = NULL;
+	PIMAGE_RESOURCE_DIRECTORY pResourceDirSec = NULL;
+	PIMAGE_RESOURCE_DIRECTORY pResourceDirThird = NULL;
 	PIMAGE_RESOURCE_DIRECTORY_ENTRY pResourceDirEntry = NULL;
+	PIMAGE_RESOURCE_DIRECTORY_ENTRY pResourceDirEntrySec = NULL;
+	PIMAGE_RESOURCE_DIRECTORY_ENTRY pResourceDirEntryThird = NULL;
+	PIMAGE_RESOURCE_DIR_STRING_U pResourceDirStringU = NULL;
+	PWCHAR nameAddr = NULL;
+	CONST CHAR* resourceClass;
+	WCHAR resourceName[50] = { 0 };
 
 	if (!pFileBuffer)
 	{
@@ -416,11 +424,64 @@ BOOL PrintResourceTable(IN LPVOID pFileBuffer)
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 
 	pDataDirectory = pOptionHeader->DataDirectory;
-	pResourceDir = (PIMAGE_RESOURCE_DIRECTORY)(pDataDirectory[2].VirtualAddress);
-
-	for (DWORD i = 0; i < pResourceDir->NumberOfIdEntries + pResourceDir->NumberOfNamedEntries; i++)
+	pResourceDir = (PIMAGE_RESOURCE_DIRECTORY)(RVAtoFOA(pFileBuffer, pDataDirectory[2].VirtualAddress) + (DWORD)pFileBuffer);
+	pResourceDirEntry = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((DWORD)pResourceDir + 16);
+	
+	//printf("%d  %d\n", pResourceDir->NumberOfNamedEntries, pResourceDir->NumberOfIdEntries);
+	//处理资源表第一层，资源类型或资源ID
+	for (WORD i = 0; i < pResourceDir->NumberOfIdEntries + pResourceDir->NumberOfNamedEntries; i++)
 	{
-		pResourceDirEntry = pResourceDir + 16;
+		printf("*********************************************\n");
+		switch (pResourceDirEntry[i].Name)
+		{
+		case 1: resourceClass = "光标"; break;
+		case 2: resourceClass = "位图"; break;
+		case 3: resourceClass = "图标"; break;
+		case 4: resourceClass = "菜单"; break;
+		case 5: resourceClass = "对话框"; break;
+		case 6: resourceClass = "字符串"; break;
+		case 7: resourceClass = "字体目录"; break;
+		case 8: resourceClass = "字体"; break;
+		case 9: resourceClass = "加速键"; break;
+		case 10: resourceClass = "未格式化资源"; break;
+		case 11: resourceClass = "消息表"; break;
+		case 12: resourceClass = "光标组"; break;
+		case 14: resourceClass = "图标组"; break;
+		case 16: resourceClass = "版本信息"; break;
+		default: resourceClass = "自定义类型"; break;
+		}
+		//打印资源类型
+		printf("第%d个资源：%s\n", i + 1, resourceClass);
+
+		printf("offset: %#x\n", pResourceDirEntry[i].OffsetToDirectory);
+
+		//处理资源表第二层
+		//第二层IMAGE_RESOURCE_DIRECTORY
+		pResourceDirSec = (PIMAGE_RESOURCE_DIRECTORY)((DWORD)pResourceDir + pResourceDirEntry[i].OffsetToDirectory);
+		pResourceDirEntrySec = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((DWORD)pResourceDirSec + 16);
+		for (WORD i = 0; i < pResourceDirSec->NumberOfIdEntries + pResourceDirSec->NumberOfNamedEntries; i++)
+		{
+			//判断是否是名称
+			if (pResourceDirEntrySec[i].NameIsString == 1)
+			{
+				pResourceDirStringU = (PIMAGE_RESOURCE_DIR_STRING_U)((DWORD)pResourceDir + pResourceDirEntrySec[i].NameOffset);
+				//pResourceDirStringU->NameString是字符串地址，不需要继续转换
+				wcsncpy(resourceName, pResourceDirStringU->NameString, pResourceDirStringU->Length);
+				resourceName[pResourceDirStringU->Length + 1] = '\0';
+				wprintf(L"\t%s\n", resourceName);
+			}
+			else
+			{
+				printf("\t%d\n", pResourceDirEntrySec[i].Name);
+			}
+			//处理资源表第三层，只打印RVA和SIZE
+			pResourceDirThird = (PIMAGE_RESOURCE_DIRECTORY)((DWORD)pResourceDir + pResourceDirEntrySec[i].OffsetToDirectory);
+			pResourceDirEntryThird = (PIMAGE_RESOURCE_DIRECTORY_ENTRY)((DWORD)pResourceDirThird + 16);
+			pDataDirectory = (PIMAGE_DATA_DIRECTORY)((DWORD)pResourceDir + pResourceDirEntryThird->OffsetToData);
+			printf("\t\tRVA: %#x, SIZE: %#x\n", pDataDirectory->VirtualAddress, pDataDirectory->Size);
+		}
+
 	}
 
+	return TRUE;
 }

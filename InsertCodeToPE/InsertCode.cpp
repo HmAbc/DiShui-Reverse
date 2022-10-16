@@ -632,11 +632,28 @@ BOOL TestPrintImportTable()
 	fileSize = ReadPEFile(FILEPATH_IN, &pFileBuffer);
 	if (!pFileBuffer)
 	{
-		printf("(TestPrintIAT)文件读取失败\n");
+		printf("(TestPrintImportTable)文件读取失败\n");
 		return 0;
 	}
 
 	PrintImportTable(pFileBuffer);
+	free(pFileBuffer);
+	return TRUE;
+}
+
+BOOL TestPrintResourceTable()
+{
+	LPVOID pFileBuffer = NULL;
+	DWORD fileSize = 0;
+
+	fileSize = ReadPEFile(FILEPATH_IN, &pFileBuffer);
+	if (!pFileBuffer)
+	{
+		printf("(TestPrintResourceTable)文件读取失败\n");
+		return 0;
+	}
+
+	PrintResourceTable(pFileBuffer);
 	free(pFileBuffer);
 	return TRUE;
 }
@@ -669,7 +686,9 @@ int main()
 
 	//TestRepairRelocationTable();
 
-	TestPrintImportTable();
+	//TestPrintImportTable();
+
+	TestPrintResourceTable();
 
 	return 0;
 }
