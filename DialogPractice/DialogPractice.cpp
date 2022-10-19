@@ -48,7 +48,7 @@ int APIENTRY WinMain(
     _In_ LPSTR lpCmdLine,
     _In_ int nShowCmd)
 {
-	DialogBox(hInstance, (LPCWCHAR)IDD_DIALOG_MAIN, NULL, DialogProc);
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, DialogProc);
 
     return 0;
 }

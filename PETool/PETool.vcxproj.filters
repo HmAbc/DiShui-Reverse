@@ -15,16 +15,41 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LearnWin32.cpp">
+    <ClCompile Include="PETool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Tools.cpp">
+    <ClCompile Include="Utils.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ModuleList.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Tools.h">
+    <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModuleList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="PETool.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="app.ico">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>
