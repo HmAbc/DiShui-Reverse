@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include "resource.h"
 #include <Tlhelp32.h>
+#include <string>
+#include <stdlib.h>
 
 void __cdecl OutputDebugStringF(const char* format, ...);
 
@@ -32,6 +34,3 @@ BOOL CALLBACK MainDialogProc(
 	// second message parameter
 );
 
-/// @brief 向ListView中添加数据
-/// @param hListProcess ListView的句柄
-BOOL EnumProcess(HWND hListProcess);

@@ -35,6 +35,7 @@ BOOL CALLBACK MainDialogProc(
 )
 {
 	HICON hIcon;
+	TCHAR pidBuffer[20] = {0};
 
 	switch (uMsg)
 	{//对话框初始化
@@ -68,6 +69,16 @@ BOOL CALLBACK MainDialogProc(
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
 		return TRUE;
+	case WM_NOTIFY:
+	{
+		NM_LISTVIEW* pnmv = (NM_LISTVIEW FAR*)lParam;
+		if (wParam == IDC_LIST_PROCESS && (pnmv->hdr).code == NM_CLICK)
+		{
+			EnumModule(hDlg, pnmv);
+		}
+
+		return TRUE;
+	}
 	default:
 		break;
 	}
@@ -75,64 +86,3 @@ BOOL CALLBACK MainDialogProc(
 }
 
 
-/// @brief 向ListView中添加数据
-/// @param hListProcess ListView的句柄
-BOOL EnumProcess(HWND hListProcess)
-{
-	LV_ITEM vItem;
-	HANDLE hSnapshot;
-	PROCESSENTRY32 processEntry;	//创建存放进程信息的结构体
-	BOOL isProcess = FALSE;
-	WORD rowNumber = 0;
-	WCHAR pid[30] = { 0 };
-	
-	//初始化
-	memset(&vItem, 0, sizeof(LV_ITEM));
-	vItem.mask = LVIF_TEXT;
-
-	//创建进程快照
-	hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	if (hSnapshot == INVALID_HANDLE_VALUE)
-	{
-		return 0;
-	}
-	//初始化结构体
-	processEntry.dwSize = sizeof(PROCESSENTRY32);
-	//从快照中读取第一个进程信息
-	isProcess = Process32First(hSnapshot, &processEntry);
-	while (isProcess)
-	{
-
-		for (size_t i = 0; i < 4; i++)
-		{
-			switch (i)
-			{
-			case 0:
-				vItem.pszText = processEntry.szExeFile;
-				break;
-			case 1:
-				wsprintf(pid, TEXT("%d"), processEntry.th32ProcessID);
-				DbgPrintf("%s", pid);
-				vItem.pszText = pid;
-				break;
-			case 2:
-				vItem.pszText = TEXT("000000");
-				break;
-			case 3:
-				vItem.pszText = TEXT("000000");
-				break;
-			default:
-				break;
-			}
-			
-			vItem.iItem = rowNumber;
-			vItem.iSubItem = i;
-			ListView_InsertItem(hListProcess, &vItem);
-		}
-		isProcess = Process32Next(hSnapshot, &processEntry);
-		rowNumber++;
-	}
-
-	CloseHandle(hSnapshot);
-	return TRUE;
-}
