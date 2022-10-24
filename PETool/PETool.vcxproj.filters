@@ -27,6 +27,15 @@
     <ClCompile Include="ModuleList.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="About.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PEDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MainDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -39,6 +48,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ModuleList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="About.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PEDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MainDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

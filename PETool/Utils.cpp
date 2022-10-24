@@ -1,9 +1,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #pragma once
 #include "Utils.h"
-#include "resource.h"
-#include "ProcessList.h"
-#include "ModuleList.h"
 
 extern HINSTANCE hAppInstance;
 
@@ -21,68 +18,30 @@ void __cdecl OutputDebugStringF(const char* format, ...)
 	return;
 }
 
-
-//DIALOG 主窗口消息处理回调函数
-BOOL CALLBACK MainDialogProc(
-	HWND hDlg,
-	// handle of window
-	UINT uMsg,
-	// message identifier
-	WPARAM wParam,
-	// first message parameter
-	LPARAM lParam
-	// second message parameter
-)
+/// @brief 设置进程访问权限，针对系统进程
+/// @param lpName 需要的权限的名称
+/// @param opt 选择是否设置权限
+/// @return 成功返回TRUE
+BOOL SetProcessPrivilege(PCWCHAR lpName, BOOL opt)
 {
-	HICON hIcon;
-	TCHAR pidBuffer[20] = {0};
+	TOKEN_PRIVILEGES tp;
+	HANDLE tokenHandle;
 
-	switch (uMsg)
-	{//对话框初始化
-	case WM_INITDIALOG:
-		//加载图标
-
-		hIcon = LoadIcon(hAppInstance, MAKEINTRESOURCE(IDI_ICON));
-		//设置图标
-		SendMessage(hDlg, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
-		SendMessage(hDlg, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
-
-		InitProcessListControl(hDlg);
-		InitModuleListControl(hDlg);
-		return TRUE;
-	//相应点击按钮事件
-	case WM_COMMAND:
-		switch (LOWORD(wParam))
-		{
-		case IDC_BUTTON_ABOUT:
-
-			return TRUE;
-		case IDC_BUTTON_LOGOUT:
-			EndDialog(hDlg, 0);
-			return TRUE;
-		case IDC_BUTTON_PE:
-
-			return TRUE;
-		default:
-			break;
-		}
-	case WM_CLOSE:
-		EndDialog(hDlg, 0);
-		return TRUE;
-	case WM_NOTIFY:
+	//打开本程序权限token
+	if (OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &tokenHandle))
 	{
-		NM_LISTVIEW* pnmv = (NM_LISTVIEW FAR*)lParam;
-		if (wParam == IDC_LIST_PROCESS && (pnmv->hdr).code == NM_CLICK)
-		{
-			EnumModule(hDlg, pnmv);
-		}
+		//函数查看系统权限的特权值，返回信息到一个LUID结构体里
+		LookupPrivilegeValue(NULL, lpName, &tp.Privileges[0].Luid);
+		tp.PrivilegeCount = 1;
+		tp.Privileges->Attributes = (opt != 0 ? SE_PRIVILEGE_ENABLED : 0);	//打开权限
 
+		//开启token的权限，如果有的话，没有权限的话就无法打开
+		AdjustTokenPrivileges(tokenHandle, FALSE, &tp, sizeof(tp), NULL, NULL);
+		CloseHandle(tokenHandle);
 		return TRUE;
 	}
-	default:
-		break;
+	else
+	{
+		return FALSE;
 	}
-	return FALSE;
 }
-
-

@@ -6,7 +6,7 @@
 #include "resource.h"
 #include <Tlhelp32.h>
 #include <string>
-#include <stdlib.h>
+#include <tchar.h>
 
 void __cdecl OutputDebugStringF(const char* format, ...);
 
@@ -16,21 +16,9 @@ void __cdecl OutputDebugStringF(const char* format, ...);
 #define DbgPrintf  
 #endif 
 
-
-/// @brief 定义DIALOG消息处理回调函数
-/// @param hwnd 窗口句柄
-/// @param uMsg 消息类型
-/// @param wParam 第一个消息参数
-/// @param lParam 第二个消息参数
-/// @return 处理完消息返回TRUE
-BOOL CALLBACK MainDialogProc(
-	HWND hwnd,
-	// handle of window
-	UINT uMsg,
-	// message identifier
-	WPARAM wParam,
-	// first message parameter
-	LPARAM lParam
-	// second message parameter
-);
+/// @brief 设置进程访问权限，针对系统进程
+/// @param lpName 需要的权限的名称
+/// @param opt 选择是否设置权限
+/// @return 成功返回TRUE
+BOOL SetProcessPrivilege(PCWCHAR lpName, BOOL opt);
 

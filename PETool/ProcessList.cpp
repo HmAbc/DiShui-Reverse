@@ -1,4 +1,5 @@
 #include "ProcessList.h"
+#include <psapi.h>
 
 /// @brief 初始化ProcessListControl
 /// @param hDlg 对话框句柄
@@ -109,34 +110,6 @@ BOOL EnumProcess(HWND hListProcess)
 		rowNumber++;
 		CloseHandle(hModuleSnap);
 	}
-	//vItem.mask = LVIF_TEXT;
-
-	//vItem.pszText = TEXT("csrss.exe");
-	//vItem.iItem = 0;
-	//vItem.iSubItem = 0;
-	//ListView_InsertItem(hListProcess, &vItem);							
-	////SendMessage(hListProcess, LVM_INSERTITEM, 0, (DWORD)&vItem);
-
-	//vItem.pszText = TEXT("448");
-	//vItem.iItem = 0;
-	//vItem.iSubItem = 1;
-	//ListView_SetItem(hListProcess, &vItem);
-
-	//vItem.pszText = TEXT("56590000");
-	//vItem.iItem = 0;
-	//vItem.iSubItem = 2;
-	//ListView_SetItem(hListProcess, &vItem);
-
-	//vItem.pszText = TEXT("000F0000");
-	//vItem.iItem = 0;
-	//vItem.iSubItem = 3;
-	//ListView_SetItem(hListProcess, &vItem);
-
-	//vItem.pszText = TEXT("winlogon.exe");
-	//vItem.iItem = 1;
-	//vItem.iSubItem = 0;
-	//ListView_InsertItem(hListProcess, &vItem);							
-	////SendMessage(hListProcess, LVM_INSERTITEM, 0, (DWORD)&vItem);
 
 	CloseHandle(hSnapshot);
 	return TRUE;
@@ -146,16 +119,21 @@ BOOL EnumProcess(HWND hListProcess)
 BOOL EnumModule(HWND hDlg, NM_LISTVIEW* pnmv)
 {
 	LV_ITEM lv;
-	HANDLE hModuleSnap;
+	HANDLE hModuleSnap, hProcess;
 	HWND hListProcess, hListModule;
 	MODULEENTRY32 moduleEntry;
 	TCHAR pidBuffer[20] = { 0 };
 	INT rowNumber = 0;
 	INT pid = 0;
+	BOOL isok = FALSE;
+
+	//开启程序访问系统进程的权限
+	isok = SetProcessPrivilege(SE_DEBUG_NAME, TRUE);
 
 	//初始化
 	moduleEntry.dwSize = sizeof(MODULEENTRY32);
 	lv.mask = TVIF_TEXT;
+
 
 	//获取IDC_LIST_PROCESS句柄
 	hListProcess = GetDlgItem(hDlg, IDC_LIST_PROCESS);
@@ -165,11 +143,16 @@ BOOL EnumModule(HWND hDlg, NM_LISTVIEW* pnmv)
 
 	//获取IDC_LIST_MODULE句柄
 	hListModule = GetDlgItem(hDlg, IDC_LIST_MODULE);
+
+	hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, _ttoi(pidBuffer));
 	//根据pid创建进程模块快照
-	hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, *(DWORD*)(pidBuffer));
-	DbgPrintf("%d %s\n", _ttoi(), pidBuffer);
+	hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, _ttoi(pidBuffer));
+
+	DbgPrintf("%u %d %d\n", GetLastError(), (DWORD)hModuleSnap, (DWORD)hProcess);
+
 	if (hModuleSnap == INVALID_HANDLE_VALUE)
 	{
+		ListView_DeleteAllItems(hListModule);
 		return 0;
 	}
 
@@ -187,10 +170,12 @@ BOOL EnumModule(HWND hDlg, NM_LISTVIEW* pnmv)
 			lv.pszText = moduleEntry.szExePath;
 			lv.iItem = rowNumber;
 			lv.iSubItem = 1;
-			ListView_InsertItem(hListModule, &lv);
+			ListView_SetItem(hListModule, &lv);
 		} while (Module32Next(hModuleSnap, &moduleEntry));
 	}
-
+	//关闭程序权限
+	SetProcessPrivilege(SE_DEBUG_NAME, FALSE);
 	CloseHandle(hModuleSnap);
+	CloseHandle(hProcess);
 	return TRUE;
 }
