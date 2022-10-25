@@ -31,5 +31,5 @@ DWORD ReadPEFile(IN LPCTSTR filePath, OUT LPVOID* fileBuffer);
 /// @brief 将PE文件执行时的RVA转换为FOA
 /// @param fileBuffer PE文件读取后在内存中的地址
 /// @param rva 文件执行后的RVA
-/// @return 返回rva对应的foa
+/// @return 返回rva对应的foa，超出文件大小的rva返回0
 DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva);

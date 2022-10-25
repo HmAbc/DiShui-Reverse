@@ -107,7 +107,7 @@ DWORD ReadPEFile(IN LPCTSTR filePath, OUT LPVOID* fileBuffer)
 /// @brief 将PE文件执行时的RVA转换为FOA
 /// @param fileBuffer PE文件读取后在内存中的地址
 /// @param rva 文件执行后的RVA
-/// @return 返回rva对应的foa
+/// @return 返回rva对应的foa，超出文件大小的rva返回0
 DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
 {
 	PIMAGE_DOS_HEADER dosHeader = NULL;
@@ -115,6 +115,7 @@ DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
 	PIMAGE_FILE_HEADER	peHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER optionalHeader = NULL;
 	PIMAGE_SECTION_HEADER sectionHeader = NULL;
+	DWORD maxSize = 0;
 
 	dosHeader = (PIMAGE_DOS_HEADER)fileBuffer;
 	ntHeader = (PIMAGE_NT_HEADERS)((DWORD)fileBuffer + dosHeader->e_lfanew);
@@ -129,9 +130,12 @@ DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
 
 	for (DWORD i = 0; i < peHeader->NumberOfSections; i++)
 	{
-		if (true)
+		maxSize = sectionHeader[i].Misc.VirtualSize > sectionHeader->SizeOfRawData ? sectionHeader[i].Misc.VirtualSize : sectionHeader->SizeOfRawData;
+		if (sectionHeader[i].VirtualAddress + maxSize > rva)
 		{
-
+			return rva - sectionHeader[i].VirtualAddress + sectionHeader[i].PointerToRawData;
 		}
 	}
+
+	return 0;
 }
