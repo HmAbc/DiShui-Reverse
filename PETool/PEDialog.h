@@ -13,3 +13,7 @@ BOOL CALLBACK PEDialogProc(
 	WPARAM wParam,	// first message parameter
 	LPARAM lParam	// second message parameter
 );
+
+/// @brief 输入PE文件路径，在PE信息查看dialog中显示信息
+/// @param filePath PE文件路径
+DWORD InitPEImformation(IN LPCTSTR filePath, IN HWND hDlg);

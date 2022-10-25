@@ -52,9 +52,10 @@ BOOL CALLBACK MainDialogProc(
 		case IDC_BUTTON_PE:
 		{
 			TCHAR fileFilter[50] = TEXT("*.exe;*.dll;*.sys;*.scr;*.drv");
-			TCHAR fileName[256] = { 0 };
+
 			//初始化
 			memset(&openFile, 0, sizeof(OPENFILENAME));
+			memset(fileName, 0, sizeof(fileName));
 
 			//设置打开文件窗口参数
 			openFile.lStructSize = sizeof(OPENFILENAME);
@@ -67,6 +68,7 @@ BOOL CALLBACK MainDialogProc(
 			//获取选择的PE文件的路径
 			GetOpenFileName(&openFile);
 			//MessageBox(NULL, fileName, TEXT("进程名"), MB_OK);
+
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_PE), hDlg, PEDialogProc);
 			DbgPrintf("%u\n", GetLastError());
 			return TRUE;
@@ -84,7 +86,6 @@ BOOL CALLBACK MainDialogProc(
 		{
 			EnumModule(hDlg, pnmv);
 		}
-
 		return TRUE;
 	}
 	default:

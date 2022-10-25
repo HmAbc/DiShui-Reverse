@@ -2,6 +2,7 @@
 #include "MainDialog.h"
 
 HINSTANCE hAppInstance;
+TCHAR fileName[256];
 
 int APIENTRY WinMain(
     _In_ HINSTANCE hInstance,
@@ -16,6 +17,7 @@ int APIENTRY WinMain(
     //icex.dwICC = ICC_WIN95_CLASSES;
     //InitCommonControlsEx(&icex);
 
+    //DbgPrintf("%d\n", ix);
     hAppInstance = hInstance;
     DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDialogProc);
 

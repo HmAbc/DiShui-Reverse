@@ -8,12 +8,8 @@
 /// @param lParam 第二个消息参数
 /// @return 处理完消息返回TRUE
 BOOL CALLBACK MainDialogProc(
-	HWND hwnd,
-	// handle of window
-	UINT uMsg,
-	// message identifier
-	WPARAM wParam,
-	// first message parameter
-	LPARAM lParam
-	// second message parameter
+	HWND hwnd,		// handle of window
+	UINT uMsg,		// message identifier
+	WPARAM wParam,	// first message parameter
+	LPARAM lParam	// second message parameter
 );

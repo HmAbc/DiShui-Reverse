@@ -16,7 +16,9 @@ void __cdecl OutputDebugStringF(const char* format, ...);
 #define DbgPrintf  
 #endif 
 
+extern DWORD ix;
 extern HINSTANCE hAppInstance;
+extern TCHAR fileName[256];
 
 /// @brief 设置进程访问权限，针对系统进程
 /// @param lpName 需要的权限的名称
