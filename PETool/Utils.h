@@ -20,5 +20,10 @@ void __cdecl OutputDebugStringF(const char* format, ...);
 /// @param lpName 需要的权限的名称
 /// @param opt 选择是否设置权限
 /// @return 成功返回TRUE
-BOOL SetProcessPrivilege(PCWCHAR lpName, BOOL opt);
+BOOL SetProcessPrivilege(IN PCWCHAR lpName, IN BOOL opt);
 
+/// @brief 打开PE文件，读取PE信息，显示在IDD_DIALOG_PE PE信息查看 对话框
+/// @param filePath PE文件路径
+/// @param fileBuffer 指针，打开成功后指向PE文件在内存的地址
+/// @return 成功返回0，失败返回一个错误码
+DWORD ReadPEFile(IN LPCTSTR filePath, OUT LPVOID* fileBuffer);

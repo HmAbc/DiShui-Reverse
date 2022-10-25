@@ -1,6 +1,7 @@
 #include <math.h>
 #include "Global.h"
 #include "TableOperate.h"
+#include <exception>
 
 
 #define FILEPATH_IN "d:/notepad.exe"
@@ -59,6 +60,7 @@ DWORD InsertCodeToFirstSection()
 	if (!pFileBuffer)
 	{
 		printf("(InsertCodeToFirstSection)ÎÄ¼þ¶ÁÈ¡Ê§°Ü\n");
+		throw FileOpenExcption();
 		return 0;
 	}
 

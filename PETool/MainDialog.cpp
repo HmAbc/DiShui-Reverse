@@ -68,7 +68,7 @@ BOOL CALLBACK MainDialogProc(
 			openFile.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 			openFile.lpstrFile = fileName;
 			openFile.nMaxFile = 256;
-
+			//获取选择的PE文件的路径
 			GetOpenFileName(&openFile);
 			//MessageBox(NULL, fileName, TEXT("进程名"), MB_OK);
 
