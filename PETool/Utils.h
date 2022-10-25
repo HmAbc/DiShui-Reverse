@@ -27,3 +27,9 @@ BOOL SetProcessPrivilege(IN PCWCHAR lpName, IN BOOL opt);
 /// @param fileBuffer 指针，打开成功后指向PE文件在内存的地址
 /// @return 成功返回0，失败返回一个错误码
 DWORD ReadPEFile(IN LPCTSTR filePath, OUT LPVOID* fileBuffer);
+
+/// @brief 将PE文件执行时的RVA转换为FOA
+/// @param fileBuffer PE文件读取后在内存中的地址
+/// @param rva 文件执行后的RVA
+/// @return 返回rva对应的foa
+DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva);

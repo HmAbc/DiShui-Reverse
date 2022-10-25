@@ -91,8 +91,47 @@ DWORD ReadPEFile(IN LPCTSTR filePath, OUT LPVOID* fileBuffer)
 	}
 
 	dosHeader = (PIMAGE_DOS_HEADER)fileBufferTemp;
-	if ((()(DWORD)fileBufferTemp + 4))
+	if (*(PDWORD)((DWORD)fileBufferTemp + dosHeader->e_lfanew) != IMAGE_NT_SIGNATURE)
 	{
+		fclose(file);
+		free(fileBufferTemp);
+		return 104;
+	}
 
+	*fileBuffer = fileBufferTemp;
+	fileBufferTemp = NULL;
+	fclose(file);
+	return 0;
+}
+
+/// @brief 将PE文件执行时的RVA转换为FOA
+/// @param fileBuffer PE文件读取后在内存中的地址
+/// @param rva 文件执行后的RVA
+/// @return 返回rva对应的foa
+DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
+{
+	PIMAGE_DOS_HEADER dosHeader = NULL;
+	PIMAGE_NT_HEADERS ntHeader = NULL;
+	PIMAGE_FILE_HEADER	peHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER optionalHeader = NULL;
+	PIMAGE_SECTION_HEADER sectionHeader = NULL;
+
+	dosHeader = (PIMAGE_DOS_HEADER)fileBuffer;
+	ntHeader = (PIMAGE_NT_HEADERS)((DWORD)fileBuffer + dosHeader->e_lfanew);
+	peHeader = (PIMAGE_FILE_HEADER)((DWORD)ntHeader + 4);
+	optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)peHeader + IMAGE_SIZEOF_FILE_HEADER);
+	sectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)optionalHeader + peHeader->SizeOfOptionalHeader);
+
+	if (rva < optionalHeader->SizeOfHeaders)
+	{
+		return rva;
+	}
+
+	for (DWORD i = 0; i < peHeader->NumberOfSections; i++)
+	{
+		if (true)
+		{
+
+		}
 	}
 }
