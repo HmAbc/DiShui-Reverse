@@ -60,7 +60,6 @@ DWORD InsertCodeToFirstSection()
 	if (!pFileBuffer)
 	{
 		printf("(InsertCodeToFirstSection)нд╪Ч╤ах║й╖╟э\n");
-		throw FileOpenExcption();
 		return 0;
 	}
 

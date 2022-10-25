@@ -2,8 +2,6 @@
 #pragma once
 #include "Utils.h"
 
-extern HINSTANCE hAppInstance;
-
 void __cdecl OutputDebugStringF(const char* format, ...)
 {
 	va_list vlArgs;

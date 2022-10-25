@@ -4,23 +4,19 @@
 #include "About.h"
 #include "PEDialog.h"
 
-HINSTANCE hAppInstance;
+//HINSTANCE hAppInstance;
 
-/// @brief 定义DIALOG消息处理回调函数
+/// @brief 定义MAIN对话框消息处理回调函数
 /// @param hwnd 窗口句柄
 /// @param uMsg 消息类型
 /// @param wParam 第一个消息参数
 /// @param lParam 第二个消息参数
-/// @return 处理完消息返回TRUE
+/// @return 处理完消息返回TRUE，未处理的消息会交给系统处理
 BOOL CALLBACK MainDialogProc(
-	HWND hDlg,
-	// handle of window
-	UINT uMsg,
-	// message identifier
-	WPARAM wParam,
-	// first message parameter
-	LPARAM lParam
-	// second message parameter
+	HWND hDlg,		// handle of window
+	UINT uMsg,		// message identifier
+	WPARAM wParam,	// first message parameter
+	LPARAM lParam	// second message parameter
 )
 {
 	//打开文件窗口参数结构体
@@ -71,8 +67,8 @@ BOOL CALLBACK MainDialogProc(
 			//获取选择的PE文件的路径
 			GetOpenFileName(&openFile);
 			//MessageBox(NULL, fileName, TEXT("进程名"), MB_OK);
-
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_PE), hDlg, PEDialogProc);
+			DbgPrintf("%u\n", GetLastError());
 			return TRUE;
 		}
 		default:

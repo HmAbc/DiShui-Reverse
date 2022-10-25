@@ -8,12 +8,8 @@
 /// @param lParam 消息第二个参数
 /// @return 拦截消息处理后返回TRUE，未处理返回FALSE，交给系统处理
 BOOL CALLBACK AboutDialogProc(
-	HWND hDlg,
-	// handle of window
-	UINT uMsg,
-	// message identifier
-	WPARAM wParam,
-	// first message parameter
-	LPARAM lParam
-	// second message parameter
+	HWND hDlg,		// handle of window
+	UINT uMsg,		// message identifier
+	WPARAM wParam,	// first message parameter
+	LPARAM lParam	// second message parameter
 );

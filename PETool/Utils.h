@@ -16,6 +16,8 @@ void __cdecl OutputDebugStringF(const char* format, ...);
 #define DbgPrintf  
 #endif 
 
+extern HINSTANCE hAppInstance;
+
 /// @brief 设置进程访问权限，针对系统进程
 /// @param lpName 需要的权限的名称
 /// @param opt 选择是否设置权限

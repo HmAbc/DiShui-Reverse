@@ -1,5 +1,5 @@
 #include "Utils.h"
-
+#include "MainDialog.h"
 
 HINSTANCE hAppInstance;
 
@@ -11,10 +11,10 @@ int APIENTRY WinMain(
 )
 {
     //注册所有通用控件
-    INITCOMMONCONTROLSEX icex;
-    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    icex.dwICC = ICC_WIN95_CLASSES;
-    InitCommonControlsEx(&icex);
+    //INITCOMMONCONTROLSEX icex;
+    //icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+    //icex.dwICC = ICC_WIN95_CLASSES;
+    //InitCommonControlsEx(&icex);
 
     hAppInstance = hInstance;
     DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDialogProc);
