@@ -46,6 +46,12 @@ BOOL CALLBACK MainDialogProc(
 			return TRUE;
 			//点退出按钮
 		case IDC_BUTTON_LOGOUT:
+			//释放资源
+			if (!fileBuffer)
+			{
+				DbgPrintf("free");
+				free(fileBuffer);
+			}
 			EndDialog(hDlg, 0);
 			return TRUE;
 			//点查看按钮
@@ -77,6 +83,12 @@ BOOL CALLBACK MainDialogProc(
 			break;
 		}
 	case WM_CLOSE:
+		//释放资源
+		if (!fileBuffer)
+		{
+			DbgPrintf("free");
+			free(fileBuffer);
+		}
 		EndDialog(hDlg, 0);
 		return TRUE;
 	case WM_NOTIFY:

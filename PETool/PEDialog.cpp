@@ -1,4 +1,5 @@
 #include "PEDialog.h"
+#include "DirectoryDialog.h"
 
 /// @brief 定义PE信息查看对话框消息处理回调函数
 /// @param hwnd 窗口句柄
@@ -23,11 +24,11 @@ BOOL CALLBACK PEDialogProc(
 		{
 			//按 区段 按钮时的逻辑
 		case IDC_BUTTON_SECTION:
-
+			
 			return TRUE;
 			//按 目录 按钮时的逻辑
 		case IDC_BUTTON_DIRECTORY:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_DIRECTORY), hDlg, DirectoryDialogProc);
 			return TRUE;
 		default:
 			break;

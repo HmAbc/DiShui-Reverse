@@ -3,6 +3,7 @@
 
 HINSTANCE hAppInstance;
 TCHAR fileName[256];
+LPVOID fileBuffer;
 
 int APIENTRY WinMain(
     _In_ HINSTANCE hInstance,
