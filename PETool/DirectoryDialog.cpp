@@ -15,8 +15,9 @@ BOOL CALLBACK DirectoryDialogProc(
 {
 	switch (uMsg)
 	{
-	case WM_INITDIALOG:
+	case WM_INITDIALOG:;
 		InitDirectoryDialog(hDlg);
+		DbgPrintf("InitDirectoryDialog %u\n", GetLastError());
 		return TRUE;
 
 	case WM_CLOSE:
@@ -40,9 +41,16 @@ DWORD InitDirectoryDialog(IN HWND hDlg)
 	PIMAGE_OPTIONAL_HEADER optionalHeader = NULL;
 	PIMAGE_DATA_DIRECTORY dataDirectory = NULL;
 
-	TCHAR rvaTemp[20] = TEXT("IDC_EDIT_RVA");
-	TCHAR sizeTemp[20] = TEXT("IDC_EDIT_SIZE");
-	TCHAR index[3]
+	INT rva[16] = { IDC_EDIT_RVA1, IDC_EDIT_RVA2, IDC_EDIT_RVA3, IDC_EDIT_RVA4, IDC_EDIT_RVA5, 
+		IDC_EDIT_RVA6, IDC_EDIT_RVA7, IDC_EDIT_RVA8, IDC_EDIT_RVA9, IDC_EDIT_RVA10, IDC_EDIT_RVA11, 
+		IDC_EDIT_RVA12, IDC_EDIT_RVA13, IDC_EDIT_RVA14, IDC_EDIT_RVA15, IDC_EDIT_RVA16 };
+	INT size[16] = { IDC_EDIT_SIZE1, IDC_EDIT_SIZE2, IDC_EDIT_SIZE3, IDC_EDIT_SIZE4, IDC_EDIT_SIZE5,
+		IDC_EDIT_SIZE6, IDC_EDIT_SIZE7, IDC_EDIT_SIZE8, IDC_EDIT_SIZE9, IDC_EDIT_SIZE10, IDC_EDIT_SIZE11,
+		IDC_EDIT_SIZE12, IDC_EDIT_SIZE13, IDC_EDIT_SIZE14, IDC_EDIT_SIZE15, IDC_EDIT_SIZE16 };
+	TCHAR temp[20] = { 0 };
+	//TCHAR rvaTemp[20] = TEXT("IDC_EDIT_RVA");
+	//TCHAR sizeTemp[20] = TEXT("IDC_EDIT_SIZE");
+	//TCHAR index[3] = { 0 };
 
 	//fileSize = ReadPEFile(filePath, &fileBuffer);
 	if (!fileBuffer)
@@ -59,10 +67,15 @@ DWORD InitDirectoryDialog(IN HWND hDlg)
 
 	for (DWORD i = 0; i < 16; i++)
 	{
+		//ÉèÖÃrva
+		wsprintf(temp, TEXT("%08X"), dataDirectory[i].VirtualAddress);
+		SendDlgItemMessage(hDlg, rva[i], WM_SETTEXT, 0, (LPARAM)temp);
+
+		//ÉèÖÃsize
+		wsprintf(temp, TEXT("%08X"), dataDirectory[i].Size);
+		SendDlgItemMessage(hDlg, size[i], WM_SETTEXT, 0, (LPARAM)temp);
 
 	}
-
-
 
 	return 0;
 }

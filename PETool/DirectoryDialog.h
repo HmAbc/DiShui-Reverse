@@ -16,5 +16,5 @@ BOOL CALLBACK DirectoryDialogProc(
 
 /// @brief 初始化目录对话框中的内容
 /// @param hDlg 目录对话框的句柄
-/// @return 无错误返回0，有错误返回错误码
+/// @return 无错误返回0，有错误返回错误码，300+
 DWORD InitDirectoryDialog(IN HWND hDlg);

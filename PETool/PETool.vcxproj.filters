@@ -21,12 +21,6 @@
     <ClCompile Include="Utils.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessList.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ModuleList.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="About.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -48,12 +42,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ProcessList.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ModuleList.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="About.h">

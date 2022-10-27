@@ -1,5 +1,6 @@
 #include "PEDialog.h"
 #include "DirectoryDialog.h"
+#include "SectionDialog.h"
 
 /// @brief 定义PE信息查看对话框消息处理回调函数
 /// @param hwnd 窗口句柄
@@ -24,7 +25,7 @@ BOOL CALLBACK PEDialogProc(
 		{
 			//按 区段 按钮时的逻辑
 		case IDC_BUTTON_SECTION:
-			
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_SECTION), hDlg, SectionDialogProc);
 			return TRUE;
 			//按 目录 按钮时的逻辑
 		case IDC_BUTTON_DIRECTORY:
@@ -49,7 +50,6 @@ DWORD InitPEImformation(IN LPCTSTR filePath, IN HWND hDlg)
 {
 	TCHAR tempBuffer[40] = { 0 };
 	DWORD fileSize = 0;
-	LPVOID fileBuffer = NULL;
 	PIMAGE_DOS_HEADER dosHeader = NULL;
 	PIMAGE_NT_HEADERS ntHeader = NULL;
 	PIMAGE_FILE_HEADER	peHeader = NULL;

@@ -13,3 +13,20 @@ BOOL CALLBACK MainDialogProc(
 	WPARAM wParam,	// first message parameter
 	LPARAM lParam	// second message parameter
 );
+
+
+/// @brief 初始化ModuleListControl
+/// @param hDlg 对话框句柄
+VOID InitModuleListControl(HWND hDlg);
+
+/// @brief 初始化ProcessListControl
+VOID InitProcessListControl(HWND hDlg);
+
+/// @brief 向ListView中添加数据
+/// @param hListProcess ListView的句柄
+BOOL EnumProcess(HWND hListProcess);
+
+/// @brief 向ListView中添加数据
+/// @hInstance 
+/// @param hListProcess ListView的句柄
+BOOL EnumModule(HWND hDlg, NM_LISTVIEW* pnmv);
