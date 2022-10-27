@@ -23,13 +23,13 @@ DWORD PrintExportTable(IN LPVOID pFileBuffer)
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 
 	pImageData = pOptionHeader->DataDirectory;
-	pImageExport = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pImageData->VirtualAddress) + (DWORD)pFileBuffer);
-	if (!pImageExport)
+	if (!pImageData->VirtualAddress)
 	{
 		printf("(PrintExportTable)文件没有导出表\n");
 		return 0;
 	}
-
+	pImageExport = (PIMAGE_EXPORT_DIRECTORY)(RVAtoFOA(pFileBuffer, pImageData->VirtualAddress) + (DWORD)pFileBuffer);
+	
 	printf("***********************函数导出表**********************\n");
 	printf("Characteristics:	%#x		(属性，未用)\n", pImageExport->Characteristics);
 	printf("TimeDateStamp:		%#x	(时间戳)\n", pImageExport->TimeDateStamp);

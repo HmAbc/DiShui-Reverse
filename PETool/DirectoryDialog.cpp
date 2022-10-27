@@ -1,4 +1,5 @@
 #include "DirectoryDialog.h"
+#include "ExportTableDialog.h"
 
 /// @brief 目录 对话框消息处理函数
 /// @param hDlg 对话框句柄
@@ -23,6 +24,33 @@ BOOL CALLBACK DirectoryDialogProc(
 	case WM_CLOSE:
 		EndDialog(hDlg, 0);
 		return TRUE;
+
+	case WM_COMMAND:
+		switch (LOWORD(wParam))
+		{
+		case IDC_BUTTON_EXPORT:
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_EXPORTTABLE), hDlg, ExportDialogProc);
+			return TRUE;
+		case IDC_BUTTON_IMPORT:
+
+			return TRUE;
+
+		case IDC_BUTTON_RESOURCE:
+
+			return TRUE;
+
+		case IDC_BUTTON_RELOCATION:
+
+			return TRUE;
+		case IDC_BUTTON_BIND:
+
+			return TRUE;
+		case IDC_BUTTON_IAT:
+
+			return TRUE;
+		default:
+			break;
+		}
 	default:
 		break;
 	}

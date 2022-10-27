@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="About.cpp" />
     <ClCompile Include="DirectoryDialog.cpp" />
+    <ClCompile Include="ExportTableDialog.cpp" />
     <ClCompile Include="MainDialog.cpp" />
     <ClCompile Include="PEDialog.cpp" />
     <ClCompile Include="PETool.cpp" />
@@ -138,6 +139,7 @@
   <ItemGroup>
     <ClInclude Include="About.h" />
     <ClInclude Include="DirectoryDialog.h" />
+    <ClInclude Include="ExportTableDialog.h" />
     <ClInclude Include="MainDialog.h" />
     <ClInclude Include="PEDialog.h" />
     <ClInclude Include="resource.h" />

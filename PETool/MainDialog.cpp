@@ -1,6 +1,4 @@
 #include "MainDialog.h"
-#include "ProcessList.h"
-#include "ModuleList.h"
 #include "About.h"
 #include "PEDialog.h"
 
@@ -34,6 +32,7 @@ BOOL CALLBACK MainDialogProc(
 		//初始化
 		InitProcessListControl(hDlg);
 		InitModuleListControl(hDlg);
+
 		return TRUE;
 	}
 	//相应点击按钮事件
@@ -77,6 +76,7 @@ BOOL CALLBACK MainDialogProc(
 			//MessageBox(NULL, fileName, TEXT("进程名"), MB_OK);
 
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_PE), hDlg, PEDialogProc);
+			DbgPrintf("pe %u\n", GetLastError());
 			return TRUE;
 		}
 		default:
@@ -86,7 +86,6 @@ BOOL CALLBACK MainDialogProc(
 		//释放资源
 		if (!fileBuffer)
 		{
-			DbgPrintf("free");
 			free(fileBuffer);
 		}
 		EndDialog(hDlg, 0);
@@ -131,6 +130,7 @@ VOID InitModuleListControl(HWND hDlg)
 		lv.iSubItem = i;
 		ListView_InsertColumn(moduleList, i, &lv);
 	}
+	DbgPrintf("moduleinit %u\n", GetLastError());
 }
 
 
@@ -161,6 +161,7 @@ VOID InitProcessListControl(HWND hDlg)
 		//SendMessage(processList, LVM_INSERTCOLUMN, i, (DWORD)&lv);
 		ListView_InsertColumn(processList, i, &lv);				//和SendMessage效果一样
 	}
+	DbgPrintf("processinit %u\n", GetLastError());
 	EnumProcess(processList);
 
 }

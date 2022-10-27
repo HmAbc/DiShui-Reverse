@@ -20,7 +20,7 @@ void __cdecl OutputDebugStringF(const char* format, ...)
 /// @param lpName 需要的权限的名称
 /// @param opt 选择是否设置权限
 /// @return 成功返回TRUE
-BOOL SetProcessPrivilege(IN PCWCHAR lpName, IN BOOL opt)
+BOOL SetProcessPrivilege(IN LPCWSTR lpName, IN BOOL opt)
 {
 	TOKEN_PRIVILEGES tp;
 	HANDLE tokenHandle;
@@ -137,3 +137,24 @@ DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
 
 	return 0;
 }
+
+/// @brief 将ASCII码字符串转换成UNICODE
+/// @param source ASCII码字符串地址
+/// @param result 接收转换后字符串的缓冲区地址
+VOID ANSIToUnicode(IN PCSTR source, OUT LPWSTR result)
+{
+	int length = 0;
+	length = MultiByteToWideChar(CP_ACP, 0, source, -1, NULL, 0);
+	MultiByteToWideChar(CP_ACP, 0, source, -1, result, length);
+}
+
+/// @brief 将UNICODE字符串转换成ASCII码字符串
+/// @param source UNICODE字符串地址
+/// @param result 接收转换后字符串的缓冲区地址
+VOID UnicodeToANSI(IN LPCWSTR source, OUT LPSTR result)
+{
+	int length = 0;
+	length = WideCharToMultiByte(CP_ACP, 0, source, -1, NULL, 0, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, source, -1, result, length, NULL, NULL);
+}
+	
