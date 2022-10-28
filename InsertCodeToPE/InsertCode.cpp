@@ -4,10 +4,10 @@
 #include <exception>
 
 
-#define FILEPATH_IN "d:/notepad.exe"
-//#define FILEPATH_IN "d:/MyDLL.dll"
-#define FILEPATH_OUT "d:/notepad_new.exe"
-//#define FILEPATH_OUT "d:/MyDLL_new.dll"
+//#define FILEPATH_IN "d:/notepad.exe"
+#define FILEPATH_IN "d:/MyDLL.dll"
+//#define FILEPATH_OUT "d:/notepad_new.exe"
+#define FILEPATH_OUT "d:/MyDLL_new.dll"
 #define MESSAGEBOXADDR 0x766C3B90
 
 BYTE SHELLCODE[] =
@@ -687,9 +687,9 @@ int main()
 
 	//TestRepairRelocationTable();
 
-	//TestPrintImportTable();
+	TestPrintImportTable();
 
-	TestPrintResourceTable();
+	//TestPrintResourceTable();
 
 	return 0;
 }

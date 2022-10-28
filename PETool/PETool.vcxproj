@@ -128,21 +128,31 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="About.cpp" />
+    <ClCompile Include="BindDialog.cpp" />
     <ClCompile Include="DirectoryDialog.cpp" />
     <ClCompile Include="ExportTableDialog.cpp" />
+    <ClCompile Include="IatDialog.cpp" />
+    <ClCompile Include="ImportTableDialog.cpp" />
     <ClCompile Include="MainDialog.cpp" />
     <ClCompile Include="PEDialog.cpp" />
     <ClCompile Include="PETool.cpp" />
+    <ClCompile Include="RelocationDialog.cpp" />
+    <ClCompile Include="ResourceTableDialog.cpp" />
     <ClCompile Include="SectionDialog.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="About.h" />
+    <ClInclude Include="BindDialog.h" />
     <ClInclude Include="DirectoryDialog.h" />
     <ClInclude Include="ExportTableDialog.h" />
+    <ClInclude Include="IatDialog.h" />
+    <ClInclude Include="ImportTableDialog.h" />
     <ClInclude Include="MainDialog.h" />
     <ClInclude Include="PEDialog.h" />
+    <ClInclude Include="RelocationDialog.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceTableDialog.h" />
     <ClInclude Include="SectionDialog.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>

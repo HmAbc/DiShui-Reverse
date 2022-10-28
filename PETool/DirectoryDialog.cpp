@@ -1,5 +1,10 @@
 #include "DirectoryDialog.h"
 #include "ExportTableDialog.h"
+#include "ImportTableDialog.h"
+#include "ResourceTableDialog.h"
+#include "RelocationDialog.h"
+#include "BindDialog.h"
+#include "IatDialog.h"
 
 /// @brief 目录 对话框消息处理函数
 /// @param hDlg 对话框句柄
@@ -32,21 +37,21 @@ BOOL CALLBACK DirectoryDialogProc(
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_EXPORTTABLE), hDlg, ExportDialogProc);
 			return TRUE;
 		case IDC_BUTTON_IMPORT:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IMPORTTABLE), hDlg, ImportDialogProc);
 			return TRUE;
 
 		case IDC_BUTTON_RESOURCE:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RESOURCETABLE), hDlg, ExportDialogProc);
 			return TRUE;
 
 		case IDC_BUTTON_RELOCATION:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RELOCATION), hDlg, ExportDialogProc);
 			return TRUE;
 		case IDC_BUTTON_BIND:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_BIND), hDlg, ExportDialogProc);
 			return TRUE;
 		case IDC_BUTTON_IAT:
-
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IAT), hDlg, ExportDialogProc);
 			return TRUE;
 		default:
 			break;

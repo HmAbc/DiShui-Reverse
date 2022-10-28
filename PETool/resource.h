@@ -10,6 +10,10 @@
 #define IDD_DIALOG_DIRECTORY            113
 #define IDD_DIALOG_EXPORTTABLE          115
 #define IDD_DIALOG_IMPORTTABLE          117
+#define IDD_DIALOG_RESOURCETABLE        118
+#define IDD_DIALOG_RELOCATION           119
+#define IDD_DIALOG_BIND                 120
+#define IDD_DIALOG_IAT                  121
 #define IDC_BUTTON_PE                   1001
 #define IDC_BUTTON_ABOUT                1002
 #define IDC_BUTTON_LOGOUT               1003
@@ -55,16 +59,19 @@
 #define IDC_EDIT_SIZE3                  1043
 #define IDC_BUTTON_EXPORT               1044
 #define IDC_EDIT_SIZE4                  1045
-#define IDC_EDIT_EXPORTTABLE            1045
 #define IDC_EDIT_SIZE5                  1046
-#define IDC_EDIT1                       1046
 #define IDC_EDIT_IMPORTTABLE            1046
 #define IDC_EDIT_SIZE6                  1047
 #define IDC_EDIT_SIZE7                  1048
+#define IDC_EDIT_EXPORTTABLE            1048
 #define IDC_EDIT_SIZE8                  1049
+#define IDC_EDIT_RESOURCETABLE          1049
 #define IDC_EDIT_SIZE9                  1050
+#define IDC_EDIT_RELOCATION             1050
 #define IDC_EDIT_SIZE10                 1051
+#define IDC_EDIT_BIND                   1051
 #define IDC_EDIT_SIZE11                 1052
+#define IDC_EDIT_IAT                    1052
 #define IDC_EDIT_SIZE12                 1053
 #define IDC_EDIT_SIZE13                 1054
 #define IDC_EDIT_SIZE14                 1055
@@ -82,7 +89,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        119
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1047
+#define _APS_NEXT_CONTROL_VALUE         1053
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

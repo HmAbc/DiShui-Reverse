@@ -1,20 +1,20 @@
 #pragma once
 #include "Utils.h"
 
-/// @brief 导入表 对话框消息处理函数
+/// @brief 资源表 对话框消息处理函数
 /// @param hDlg 对话框句柄
 /// @param uMsg 消息编号
 /// @param wParam 消息第一个参数
 /// @param lParam 消息第二个参数
 /// @return 拦截消息处理后返回TRUE，未处理返回FALSE，交给系统处理
-BOOL CALLBACK ImportDialogProc(
+BOOL CALLBACK ResourceDialogProc(
 	HWND hDlg,		// handle of window
 	UINT uMsg,		// message identifier
 	WPARAM wParam,	// first message parameter
 	LPARAM lParam	// second message parameter
 );
 
-/// @brief 初始化导入表对话框中的内容
+/// @brief 初始化资源表对话框中的内容
 /// @param hDlg 目录对话框的句柄
-/// @return 无错误返回0，有错误返回错误码，600+
-DWORD InitImportDialog(IN HWND hDlg);
+/// @return 无错误返回0，有错误返回错误码，700+
+DWORD InitResourceDialog(IN HWND hDlg);
