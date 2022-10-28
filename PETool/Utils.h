@@ -16,6 +16,14 @@ void __cdecl OutputDebugStringF(const char* format, ...);
 #define DbgPrintf  
 #endif 
 
+#ifdef _UNICODE
+#define tstring wstring
+#define to_tstring to_wstring
+#else
+#define tstring string
+#define to_tstring to_string
+#endif
+
 //声明全局变量
 extern HINSTANCE hAppInstance;
 extern TCHAR fileName[256];

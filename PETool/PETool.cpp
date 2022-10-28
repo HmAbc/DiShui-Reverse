@@ -17,7 +17,7 @@ int APIENTRY WinMain(
     //icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
     //icex.dwICC = ICC_WIN95_CLASSES;
     //InitCommonControlsEx(&icex);
-    DbgPrintf("main %u\n", GetLastError());
+
     hAppInstance = hInstance;
     DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDialogProc);
     
