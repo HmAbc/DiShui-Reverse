@@ -23,7 +23,6 @@ BOOL CALLBACK DirectoryDialogProc(
 	{
 	case WM_INITDIALOG:;
 		InitDirectoryDialog(hDlg);
-		DbgPrintf("InitDirectoryDialog %u\n", GetLastError());
 		return TRUE;
 
 	case WM_CLOSE:
@@ -36,23 +35,27 @@ BOOL CALLBACK DirectoryDialogProc(
 		case IDC_BUTTON_EXPORT:
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_EXPORTTABLE), hDlg, ExportDialogProc);
 			return TRUE;
+
 		case IDC_BUTTON_IMPORT:
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IMPORTTABLE), hDlg, ImportDialogProc);
 			return TRUE;
 
 		case IDC_BUTTON_RESOURCE:
-			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RESOURCETABLE), hDlg, ExportDialogProc);
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RESOURCETABLE), hDlg, ResourceDialogProc);
 			return TRUE;
 
 		case IDC_BUTTON_RELOCATION:
-			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RELOCATION), hDlg, ExportDialogProc);
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_RELOCATION), hDlg, RelocationDialogProc);
 			return TRUE;
+
 		case IDC_BUTTON_BIND:
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_BIND), hDlg, ExportDialogProc);
 			return TRUE;
+
 		case IDC_BUTTON_IAT:
 			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IAT), hDlg, ExportDialogProc);
 			return TRUE;
+
 		default:
 			break;
 		}

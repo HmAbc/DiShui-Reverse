@@ -40,7 +40,7 @@ DWORD InitExportTableDialog(IN HWND hDlg)
 	PIMAGE_EXPORT_DIRECTORY exportDirectory = NULL;
 	HWND exportEdit;
 	TCHAR tempBuffer[60] = { 0 };
-	TCHAR tempNameBuffer[20] = { 0 };
+	TCHAR tempNameBuffer[40] = { 0 };
 	std::tstring contentBuffer;
 	std::tstring tempStr;
 	BOOL flag = 0;
@@ -113,7 +113,7 @@ DWORD InitExportTableDialog(IN HWND hDlg)
 	tempStr = tempBuffer;
 	contentBuffer += tempStr;
 
-	contentBuffer += TEXT("函数地址\t导出序号\t函数名称\r\n");
+	contentBuffer += TEXT("函数地址\t导出序号\t函数名称\r\n-----------------------------------------------------------------------------------------\r\n");
 
 	for (DWORD i = 0; i < exportDirectory->NumberOfFunctions; i++)
 	{

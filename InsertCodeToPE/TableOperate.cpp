@@ -72,7 +72,7 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	PIMAGE_NT_HEADERS pNtHeader = NULL;
 	PIMAGE_FILE_HEADER pPEHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER pOptionHeader = NULL;
-	PIMAGE_DATA_DIRECTORY pImageData = NULL;
+	PIMAGE_DATA_DIRECTORY pDataDirectory = NULL;
 	PIMAGE_BASE_RELOCATION pBaseRelocation = NULL;
 	PSHORT relocationAddr = 0;
 	DWORD relocationSize = 0;
@@ -90,10 +90,10 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 	pPEHeader = (PIMAGE_FILE_HEADER)((DWORD)pNtHeader + 4);
 	pOptionHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)pPEHeader + IMAGE_SIZEOF_FILE_HEADER);
 
-	pImageData = pOptionHeader->DataDirectory;
-	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pImageData[5].VirtualAddress) + (DWORD)pFileBuffer);
+	pDataDirectory = pOptionHeader->DataDirectory;
+	pBaseRelocation = (PIMAGE_BASE_RELOCATION)(RVAtoFOA(pFileBuffer, pDataDirectory[5].VirtualAddress) + (DWORD)pFileBuffer);
 
-	if (!pBaseRelocation)
+	if (!pDataDirectory[5].VirtualAddress)
 	{
 		printf("(PrintRelocationTable)没有找到重定位表\n");
 		return 0;
@@ -109,7 +109,7 @@ DWORD PrintRelocationTable(IN LPVOID pFileBuffer)
 		printf("RVA: %#x\n", pBaseRelocation->VirtualAddress);
 		numberOfItem = (relocationSize - 8) / 2;
 		printf("%d\n", numberOfItem);
-		for (size_t i = 0; i < numberOfItem; i++)
+		for (DWORD i = 0; i < numberOfItem; i++)
 		{
 			tempAddr = relocationAddr[i];
 			printf("第 %d 个地址：%#x	属性：%d\n", i + 1, (tempAddr & 0xFFF) + pBaseRelocation->VirtualAddress, (tempAddr >> 12) & 0xF);

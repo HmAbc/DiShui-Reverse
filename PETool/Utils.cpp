@@ -128,7 +128,7 @@ DWORD RVA2FOA(IN LPVOID fileBuffer, IN DWORD rva)
 
 	for (DWORD i = 0; i < peHeader->NumberOfSections; i++)
 	{
-		maxSize = sectionHeader[i].Misc.VirtualSize > sectionHeader->SizeOfRawData ? sectionHeader[i].Misc.VirtualSize : sectionHeader->SizeOfRawData;
+		maxSize = sectionHeader[i].Misc.VirtualSize > sectionHeader[i].SizeOfRawData ? sectionHeader[i].Misc.VirtualSize : sectionHeader[i].SizeOfRawData;
 		if (sectionHeader[i].VirtualAddress + maxSize > rva)
 		{
 			return rva - sectionHeader[i].VirtualAddress + sectionHeader[i].PointerToRawData;

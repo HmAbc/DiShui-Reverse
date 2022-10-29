@@ -75,7 +75,7 @@ DWORD InitImportDialog(IN HWND hDlg)
 
 	while (importDescriptor->OriginalFirstThunk)
 	{
-		contentBuffer += TEXT("\r\n-------------------------------------------\r\n");
+		contentBuffer += TEXT("\r\n！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！\r\n");
 
 		//侃尖DLL兆忖
 		tempNameAddr = RVA2FOA(fileBuffer, importDescriptor->Name) + (DWORD)fileBuffer;

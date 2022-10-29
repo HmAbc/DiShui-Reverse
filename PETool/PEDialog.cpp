@@ -36,6 +36,11 @@ BOOL CALLBACK PEDialogProc(
 		}
 		return TRUE;
 	case WM_CLOSE:
+		//สอทลืสิด
+		if (!fileBuffer)
+		{
+			free(fileBuffer);
+		}
 		EndDialog(hDlg, 0);
 		return TRUE;
 	default:

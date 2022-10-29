@@ -48,7 +48,6 @@ BOOL CALLBACK MainDialogProc(
 			//สอทลืสิด
 			if (!fileBuffer)
 			{
-				DbgPrintf("free");
 				free(fileBuffer);
 			}
 			EndDialog(hDlg, 0);
