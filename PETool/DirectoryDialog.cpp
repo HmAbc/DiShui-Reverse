@@ -49,11 +49,11 @@ BOOL CALLBACK DirectoryDialogProc(
 			return TRUE;
 
 		case IDC_BUTTON_BIND:
-			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_BIND), hDlg, ExportDialogProc);
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_BIND), hDlg, BindDialogProc);
 			return TRUE;
 
 		case IDC_BUTTON_IAT:
-			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IAT), hDlg, ExportDialogProc);
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_IAT), hDlg, IatDialogProc);
 			return TRUE;
 
 		default:

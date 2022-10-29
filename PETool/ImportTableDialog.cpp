@@ -49,11 +49,6 @@ DWORD InitImportDialog(IN HWND hDlg)
 	INT index = 1;
 	DWORD tempNameAddr = 0;
 
-	if (!fileBuffer)
-	{
-		return 600;
-	}
-
 	dosHeader = (PIMAGE_DOS_HEADER)fileBuffer;
 	ntHeader = (PIMAGE_NT_HEADERS)((DWORD)fileBuffer + dosHeader->e_lfanew);
 	peHeader = (PIMAGE_FILE_HEADER)((DWORD)ntHeader + 4);
@@ -62,7 +57,7 @@ DWORD InitImportDialog(IN HWND hDlg)
 	importEdit = GetDlgItem(hDlg, IDC_EDIT_IMPORTTABLE);
 
 	dataDirectory = optionalHeader->DataDirectory;
-	//没有导出表时
+	//没有导入表时
 	if (!dataDirectory[1].VirtualAddress)
 	{
 		contentBuffer += TEXT("\t没有导入表\r\n");
