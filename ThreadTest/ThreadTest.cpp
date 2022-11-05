@@ -1,10 +1,17 @@
+/*
+* 用临界区实现多线程读写控制
+*/
+
 #include "ThreadTest.h"
 
 HINSTANCE hAppInstance;
-HWND edit1, edit2;
+HWND edit1, edit2, edit3, edit4;
+CRITICAL_SECTION cs;
 
+DWORD WINAPI ThreadProc0(LPVOID lpParameter);
 DWORD WINAPI ThreadProc1(LPVOID lpParameter);
 DWORD WINAPI ThreadProc2(LPVOID lpParameter);
+DWORD WINAPI ThreadProc3(LPVOID lpParameter);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
@@ -13,6 +20,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 {
 
     hAppInstance = hInstance;
+    InitializeCriticalSection(&cs);
     DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDialogProc);
 
     return 0;
@@ -29,23 +37,25 @@ BOOL CALLBACK MainDialogProc(
     {
     case WM_INITDIALOG:
         edit1 = GetDlgItem(hDlg, IDC_EDIT1);
-        SetWindowText(edit1, TEXT("1000"));
-
         edit2 = GetDlgItem(hDlg, IDC_EDIT2);
+        edit3 = GetDlgItem(hDlg, IDC_EDIT3);
+        edit4 = GetDlgItem(hDlg, IDC_EDIT4);
+        SetWindowText(edit1, TEXT("10000"));
         SetWindowText(edit2, TEXT("0"));
+        SetWindowText(edit3, TEXT("0"));
+        SetWindowText(edit4, TEXT("0"));
         return TRUE;
     case WM_COMMAND:
         switch (LOWORD(wParam))
         {
         case IDC_BUTTON:
         {
-            HANDLE thread1 = CreateThread(NULL, 0, ThreadProc1, NULL, 0, NULL);
-            HANDLE thread2 = CreateThread(NULL, 0, ThreadProc2, NULL, 0, NULL);
+            HANDLE thread1 = ::CreateThread(NULL, 0, ThreadProc0, NULL, 0, NULL);
+       
 
-            if (thread1 && thread2)
+            if (thread1)
             {
                 ::CloseHandle(thread1);
-                ::CloseHandle(thread2);
             }
             
             return TRUE;
@@ -64,20 +74,54 @@ BOOL CALLBACK MainDialogProc(
     return FALSE;
 }
 
+DWORD WINAPI ThreadProc0(LPVOID lpParameter)
+{
+    HANDLE handle[3];
+
+    handle[0] = ::CreateThread(NULL, 0, ThreadProc1, NULL, 0, NULL);
+    handle[1] = ::CreateThread(NULL, 0, ThreadProc2, NULL, 0, NULL);
+    handle[2] = ::CreateThread(NULL, 0, ThreadProc3, NULL, 0, NULL);
+
+    ::WaitForMultipleObjects(3, handle, TRUE, INFINITE);
+    ::CloseHandle(handle[0]);
+    ::CloseHandle(handle[1]);
+    ::CloseHandle(handle[2]);
+
+    return 0;
+}
+
 DWORD WINAPI ThreadProc1(LPVOID lpParameter)
 {
+    BOOL flag = 1;
     //获取文本框数据
-    TCHAR timeBuffer[10] = { 0 };
-    DWORD time = 0;
-    GetWindowText(edit1, timeBuffer, 10);
-    swscanf_s(timeBuffer, TEXT("%d"), &time);
+    TCHAR editBuffer1[10] = { 0 };
+    TCHAR editBuffer2[10] = { 0 };
+    DWORD no1 = 0, no2 = 0;
 
-    while (time > 0)
+    while (flag)
     {
-        memset(timeBuffer, 0, 10);
-        Sleep(1000);
-        wsprintf(timeBuffer, TEXT("%d"), --time);
-        SetWindowText(edit1, timeBuffer);
+        EnterCriticalSection(&cs);
+        GetWindowText(edit1, editBuffer1, 10);
+        GetWindowText(edit2, editBuffer2, 10);
+        swscanf_s(editBuffer1, TEXT("%d"), &no1);
+        swscanf_s(editBuffer2, TEXT("%d"), &no2);
+        if (no1 <50)
+        {
+            flag = 0;
+        }
+        else
+        {
+            memset(editBuffer1, 0, 10);
+            memset(editBuffer2, 0, 10);
+            no1 -= 50;
+            no2 += 50;
+            wsprintf(editBuffer1, TEXT("%d"), no1);
+            wsprintf(editBuffer2, TEXT("%d"), no2);
+            SetWindowText(edit1, editBuffer1);
+            SetWindowText(edit2, editBuffer2);
+        }
+        LeaveCriticalSection(&cs);
+        Sleep(50);
     }
 
     return 0;
@@ -85,20 +129,74 @@ DWORD WINAPI ThreadProc1(LPVOID lpParameter)
 
 DWORD WINAPI ThreadProc2(LPVOID lpParameter)
 {
+    BOOL flag = 1;
     //获取文本框数据
-    TCHAR timeBuffer[10] = { 0 };
-    DWORD time = 0;
-    GetWindowText(edit2, timeBuffer, 10);
-    swscanf_s(timeBuffer, TEXT("%d"), &time);
+    TCHAR editBuffer1[10] = { 0 };
+    TCHAR editBuffer2[10] = { 0 };
+    DWORD no1 = 0, no2 = 0;
 
-    while (time < 1000)
+    while (flag)
     {
-        memset(timeBuffer, 0, 10);
-        Sleep(1000);
-        wsprintf(timeBuffer, TEXT("%d"), ++time);
-        SetWindowText(edit2, timeBuffer);
+        EnterCriticalSection(&cs);
+        GetWindowText(edit1, editBuffer1, 10);
+        GetWindowText(edit3, editBuffer2, 10);
+        swscanf_s(editBuffer1, TEXT("%d"), &no1);
+        swscanf_s(editBuffer2, TEXT("%d"), &no2);
+        if (no1 < 50)
+        {
+            flag = 0;
+        }
+        else
+        {
+            memset(editBuffer1, 0, 10);
+            memset(editBuffer2, 0, 10);
+            no1 -= 50;
+            no2 += 50;
+            wsprintf(editBuffer1, TEXT("%d"), no1);
+            wsprintf(editBuffer2, TEXT("%d"), no2);
+            SetWindowText(edit1, editBuffer1);
+            SetWindowText(edit3, editBuffer2);
+        }
+        LeaveCriticalSection(&cs);
+        Sleep(40);
     }
 
     return 0;
 }
 
+DWORD WINAPI ThreadProc3(LPVOID lpParameter)
+{
+    BOOL flag = 1;
+    //获取文本框数据
+    TCHAR editBuffer1[10] = { 0 };
+    TCHAR editBuffer2[10] = { 0 };
+    DWORD no1 = 0, no2 = 0;
+
+    while (flag)
+    {
+        EnterCriticalSection(&cs);
+        GetWindowText(edit1, editBuffer1, 10);
+        GetWindowText(edit4, editBuffer2, 10);
+        swscanf_s(editBuffer1, TEXT("%d"), &no1);
+        swscanf_s(editBuffer2, TEXT("%d"), &no2);
+        if (no1 < 50)
+        {
+            flag = 0;
+        }
+        else
+        {
+            memset(editBuffer1, 0, 10);
+            memset(editBuffer2, 0, 10);
+            no1 -= 50;
+            no2 += 50;
+            wsprintf(editBuffer1, TEXT("%d"), no1);
+            wsprintf(editBuffer2, TEXT("%d"), no2);
+            SetWindowText(edit1, editBuffer1);
+            SetWindowText(edit4, editBuffer2);
+        }
+        LeaveCriticalSection(&cs);
+        Sleep(35);
+    }
+
+    return 0;
+}
