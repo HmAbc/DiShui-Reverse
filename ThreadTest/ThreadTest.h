@@ -1,8 +1,17 @@
+#define _CRT_SECURE_NO_WARNINGS
 #pragma once
 
 #include <Windows.h>
 #include "resource.h"
 #include <stdio.h>
+
+void __cdecl OutputDebugStringF(const char* format, ...);
+
+#ifdef _DEBUG  
+#define DbgPrintf   OutputDebugStringF  
+#else  
+#define DbgPrintf  
+#endif 
 
 /// @brief 主 对话框消息处理函数
 /// @param hDlg 对话框句柄
