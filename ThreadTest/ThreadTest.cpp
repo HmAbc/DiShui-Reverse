@@ -104,7 +104,7 @@ DWORD WINAPI ThreadProc0(LPVOID lpParameter)
     ::CloseHandle(handle[1]);
     ::CloseHandle(handle[2]);
     ::CloseHandle(mutex);
-
+    ::DeleteCriticalSection(&cs);
     return 0;
 }
 
