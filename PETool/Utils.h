@@ -56,3 +56,24 @@ VOID ANSIToUnicode(IN PCSTR source, OUT LPWSTR result);
 /// @param source UNICODE字符串地址
 /// @param result 接收转换后字符串的缓冲区地址
 VOID UnicodeToANSI(IN LPCWSTR source, OUT LPSTR result);
+
+/// @brief 将PE头文件中的NTHeader处向前移动到DOSHeader->e_lfanew后
+/// @param fileBuffer 文件缓冲区地址
+/// @return 成功返回TRUE，失败返回FALSE
+BOOL MoveHeader(IN LPVOID fileBuffer);
+
+/// @brief 在PE文件最后添加一个节，可以加在拉伸或未拉伸的文件后，默认添加属性为0xE0000060
+/// @param pImageBuffer 文件地址
+/// @param pNewImageBuffer 添加完section的文件地址
+/// @param fileSize 需要添加节的文件的大小
+/// @param addSize 要增加的数据大小
+/// @param name 要增加节的名字，字节数组，ANSI编码
+/// @return 成功返回总的文件大小，pNewImageBuffer保存添加section后的文件地址，失败返回0
+DWORD AddNewSection(IN LPVOID pImageBuffer, OUT LPVOID* pNewImageBuffer, IN DWORD fileSize, IN DWORD addSize, IN PCHAR name);
+
+/// @brief 从内存将文件写回磁盘
+/// @param pMemBuffer 需要保存的文件在内存中的地址
+/// @param size 需要保存的文件的大小
+/// @param lpszFile 保存文件路径及文件名
+/// @return 成功返回TRUE，失败返回FALSE
+BOOL MemoryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPCTSTR lpszFile);

@@ -171,7 +171,7 @@ DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID* pNewBuffer)
 
 BOOL MemoryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPCSTR lpszFile)
 {
-	FILE *pFile = NULL;
+	FILE* pFile = NULL;
 	errno_t err = 0;
 	err = fopen_s(&pFile, lpszFile, "wb+");
 	if (!pFile)

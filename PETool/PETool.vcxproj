@@ -139,6 +139,7 @@
     <ClCompile Include="RelocationDialog.cpp" />
     <ClCompile Include="ResourceTableDialog.cpp" />
     <ClCompile Include="SectionDialog.cpp" />
+    <ClCompile Include="ShellDialog.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +155,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ResourceTableDialog.h" />
     <ClInclude Include="SectionDialog.h" />
+    <ClInclude Include="ShellDialog.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>

@@ -34,7 +34,7 @@ BOOL CALLBACK PEDialogProc(
 		default:
 			break;
 		}
-		return TRUE;
+		return FALSE;
 	case WM_CLOSE:
 		//สอทลืสิด
 		if (!fileBuffer)

@@ -1,6 +1,7 @@
 #include "MainDialog.h"
 #include "About.h"
 #include "PEDialog.h"
+#include "ShellDialog.h"
 
 //HINSTANCE hAppInstance;
 
@@ -56,7 +57,7 @@ BOOL CALLBACK MainDialogProc(
 		case IDC_BUTTON_PE:
 		{
 			OPENFILENAME openFile;
-			TCHAR fileFilter[50] = TEXT("*.exe;*.dll;*.sys;*.scr;*.drv");
+			TCHAR fileFilter[100] = TEXT("PE文件（*.exe;*.dll;*.sys;*.scr;*.drv）\0*.exe;*.dll;*.sys;*.scr;*.drv\0");
 
 			//初始化
 			memset(&openFile, 0, sizeof(OPENFILENAME));
@@ -73,9 +74,17 @@ BOOL CALLBACK MainDialogProc(
 			//获取选择的PE文件的路径
 			GetOpenFileName(&openFile);
 			//MessageBox(NULL, fileName, TEXT("进程名"), MB_OK);
-
-			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_PE), hDlg, PEDialogProc);
-			DbgPrintf("pe %u\n", GetLastError());
+			if (lstrcmp(fileName, TEXT("")))
+			{
+				DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_PE), hDlg, PEDialogProc);
+			}
+			
+			return TRUE;
+		}
+		case IDC_BUTTON_SHELL:
+		{
+			DialogBox(hAppInstance, MAKEINTRESOURCE(IDD_DIALOG_SHELL), hDlg, ShellDialogProc);
+			DbgPrintf("%d\n", GetLastError());
 			return TRUE;
 		}
 		default:
