@@ -186,7 +186,10 @@ DWORD WINAPI AddShell(LPVOID lpParameter)
 		free(newBuffer);
 		return 0;
 	}
-	for (int i = 0; i < processSize / 4; i++)
+
+	DbgPrintf("%x\n", processSize);
+
+	for (DWORD i = 0; i < processSize / 4; i++)
 	{
 		encryptBuffer[i] = ((PDWORD)processBuffer)[i] ^ KEY;
 	}
